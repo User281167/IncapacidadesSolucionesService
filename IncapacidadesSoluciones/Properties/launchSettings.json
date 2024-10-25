@@ -7,7 +7,8 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "SUPABASE_URL": "https://myqaxaprlvmzpgrvorrr.supabase.co",
-        "SUPABASE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15cWF4YXBybHZtenBncnZvcnJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk3ODc4MTksImV4cCI6MjA0NTM2MzgxOX0.UA38AJzTzl0_dR72x4ssPV4uR45RmqfKaAuok2Yt8gw"
+        "SUPABASE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15cWF4YXBybHZtenBncnZvcnJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk3ODc4MTksImV4cCI6MjA0NTM2MzgxOX0.UA38AJzTzl0_dR72x4ssPV4uR45RmqfKaAuok2Yt8gw",
+        "JWT_KEY": "afsdkjasjflxswafsdklk434orqiwup3457u-34oewir4irroqwiffv48mfs"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5295"

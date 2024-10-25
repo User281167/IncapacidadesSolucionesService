@@ -1,11 +1,12 @@
 ﻿using IncapacidadesSoluciones.Dto;
 using IncapacidadesSoluciones.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IncapacidadesSoluciones.Controllers
 {
     [ApiController]
-    [Route("user/[controller]")]
+    [Route("[controller]")]
     public class UserController: ControllerBase
     {
         private readonly UserService userService;
@@ -15,7 +16,7 @@ namespace IncapacidadesSoluciones.Controllers
             this.userService = userService;
         }
 
-        [HttpPost]
+        [HttpPost, Authorize(Roles="LIDER")]
         public async Task<IActionResult> PostUser(CreateUserReq newUser, Supabase.Client client)
         {
             if (newUser == null)
@@ -24,7 +25,7 @@ namespace IncapacidadesSoluciones.Controllers
             var createdUser = await userService.CreateUser(newUser, client);
 
             if (createdUser == null)
-                return Problem("El usuario no ser pudo crear");
+                return Problem("El usuario no pudo ser creado");
 
             return Ok(createdUser);
         }
