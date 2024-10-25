@@ -14,10 +14,10 @@ namespace IncapacidadesSoluciones.Models
         public Guid Id { get; set; }
         
         [@Column("nombres")]
-        public string Nombres { get; set; }
+        public string Name { get; set; }
 
         [@Column("apellidos")]
-        public string Apellidos { get; set; }
+        public string LastName { get; set; }
 
         [@Column("cedula")]
         public string Cedula { get; set; }
@@ -26,28 +26,28 @@ namespace IncapacidadesSoluciones.Models
         public string Email { get; set; }
 
         [@Column("telefono")]
-        public string Telefono { get; set; }
+        public string Phone { get; set; }
 
         [@Column("nit_empresa")]
-        public string NitEmpresa { get; set; }
+        public string CompanyNIT { get; set; }
 
         [@Column("fecha_union")]
-        public DateOnly FechaUnion { get; set; }
+        public DateOnly JoinDate { get; set; }
 
         [@Column("rol")]
-        public string Rol { get; set; }
+        public string Role { get; set; }
 
         public static User FromDto(CreateUserReq dto)
         {
             return new User
             {
-                Nombres = dto.Nombres,
-                Apellidos = dto.Apellidos,
+                Name = dto.Name,
+                LastName = dto.LastName,
                 Cedula = dto.Cedula,
                 Email = dto.Email,
-                Telefono = dto.Telefono,
-                NitEmpresa = dto.NitEmpresa,
-                Rol = dto.Rol
+                Phone = dto.Phone,
+                CompanyNIT = dto.CompanyNIT,
+                Role = dto.Role
             };
         }
     }

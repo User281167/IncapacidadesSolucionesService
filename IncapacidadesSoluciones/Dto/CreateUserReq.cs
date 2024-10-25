@@ -2,13 +2,13 @@
 {
     public class CreateUserReq
     {
-        public string Nombres { get; set; }
-        public string Apellidos { get; set; }
+        public string Name { get; set; }
+        public string LastName { get; set; }
         public string Cedula { get; set; }
         public string Email { get; set; }
-        public string Telefono { get; set; }
-        public string NitEmpresa { get; set; }
-        public DateOnly FechaUnion { get; set; }
-        public String Rol { get; set; }
+        public string Phone { get; set; }
+        public string CompanyNIT { get; set; }
+        public DateOnly JoinDate { get; set; }
+        public String Role { get; set; }
     }
 }
