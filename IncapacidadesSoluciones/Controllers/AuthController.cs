@@ -1,4 +1,5 @@
 ﻿using IncapacidadesSoluciones.Dto.auth;
+using IncapacidadesSoluciones.Dto.Company;
 using IncapacidadesSoluciones.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +24,7 @@ namespace IncapacidadesSoluciones.Controllers
 
             var res = await authService.RegisterCompany(req, client);
 
-            if (!string.IsNullOrEmpty(res.ErrorMessage) && res.UserData == null)
+            if (!string.IsNullOrEmpty(res.ErrorMessage) && res.User == null)
                 return BadRequest(res.ErrorMessage != null ? res.ErrorMessage : "El usuario no pudo ser creado.");
 
             return Ok(res);
