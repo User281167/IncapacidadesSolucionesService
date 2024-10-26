@@ -6,16 +6,16 @@ namespace IncapacidadesSoluciones.Dto.Company
     {
         public Guid Id { get; set; }
 
-        [Required]
+        [Required, MinLength(1)]
         public string Nit { get; set; }
 
-        [Required]
+        [Required, MinLength(1)]
         public string Name { get; set; }
         
         [Required]
         public string Description { get; set; }
         
-        [Required]
+        [Required, EmailAddress]
         public string Email { get; set; }
         
         [Required]

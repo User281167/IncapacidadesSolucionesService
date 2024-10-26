@@ -91,14 +91,14 @@ namespace IncapacidadesSoluciones.Services
                 {
                     Token = CreateToken(res, USER_ROLE.LEADER),
                     User = res,
-                    ErrorMessage = company == null ? "Error al registrar la compañia" : ""
+                    ErrorMessage = companyRes == null ? "Error al registrar la compañia" : ""
                 };
             }
             catch (Exception ex)
             {
                 return new AuthRes
                 {
-                    ErrorMessage = "Error interno al registrar el usuario y compañia"
+                    ErrorMessage = "Error interno al registrar el usuario y compañia " + ex.Message
                 };
             }
         }

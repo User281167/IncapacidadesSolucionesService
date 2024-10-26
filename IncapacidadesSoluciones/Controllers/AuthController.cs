@@ -24,8 +24,9 @@ namespace IncapacidadesSoluciones.Controllers
 
             var res = await authService.RegisterCompany(req);
 
+            // Error creating a new user, can fail creating company
             if (!string.IsNullOrEmpty(res.ErrorMessage) && res.User == null)
-                return BadRequest(res.ErrorMessage != null ? res.ErrorMessage : "El usuario no pudo ser creado.");
+                return BadRequest(res.ErrorMessage);
 
             return Ok(res);
         }

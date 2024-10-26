@@ -4,7 +4,7 @@ namespace IncapacidadesSoluciones.Dto.auth
 {
     public class AuthUserReq
     {
-        public Guid loginCode { get; set; }
+        public Guid LoginCode { get; set; }
 
         [Required]
         public string Name { get; set; }
@@ -12,15 +12,15 @@ namespace IncapacidadesSoluciones.Dto.auth
         [Required]
         public string LastName { get; set; }
 
-        [Required]
+        [Required, MinLength(5), MaxLength(100)]
         public string Cedula { get; set; }
 
         public string Phone { get; set; }
 
-        [Required]
+        [Required, EmailAddress]
         public string Email { get; set; }
 
-        [Required]
+        [Required, MinLength(6), MaxLength(100)]
         public string Password { get; set; }
     }
 }
