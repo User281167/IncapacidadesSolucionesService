@@ -1,3 +1,4 @@
+using IncapacidadesSoluciones.Repositories;
 using IncapacidadesSoluciones.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -56,6 +57,10 @@ builder.Services.AddScoped<Supabase.Client>(_ =>
 // services
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AuthService>();
+
+// repositories
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 
 var app = builder.Build();
 

@@ -17,12 +17,12 @@ namespace IncapacidadesSoluciones.Controllers
         }
 
         [HttpPost, Authorize(Roles="LIDER")]
-        public async Task<IActionResult> PostUser(CreateUserReq newUser, Supabase.Client client)
+        public async Task<IActionResult> PostUser(CreateUserReq newUser)
         {
             if (newUser == null)
                 return BadRequest("El usuario no puede ser nulo");
 
-            var createdUser = await userService.CreateUser(newUser, client);
+            var createdUser = await userService.CreateUser(newUser);
 
             if (createdUser == null)
                 return Problem("El usuario no pudo ser creado");

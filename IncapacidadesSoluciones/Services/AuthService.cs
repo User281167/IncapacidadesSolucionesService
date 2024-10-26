@@ -1,6 +1,7 @@
 ﻿using IncapacidadesSoluciones.Dto.auth;
 using IncapacidadesSoluciones.Dto.Company;
 using IncapacidadesSoluciones.Models;
+using IncapacidadesSoluciones.Repositories;
 using IncapacidadesSoluciones.Utilities.Company;
 using IncapacidadesSoluciones.Utilities.Role;
 using Microsoft.IdentityModel.Tokens;
@@ -8,12 +9,19 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-using QueryOptions = Supabase.Postgrest.QueryOptions;
-
 namespace IncapacidadesSoluciones.Services
 {
     public class AuthService
     {
+        private readonly IUserRepository userRepository;
+        private readonly ICompanyRepository companyRepository;
+
+        public AuthService(IUserRepository userRepository, ICompanyRepository companyRepository)
+        {
+            this.userRepository = userRepository;
+            this.companyRepository = companyRepository;
+        }
+
         private string CreateToken(User user, USER_ROLE role)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY")));
@@ -34,31 +42,11 @@ namespace IncapacidadesSoluciones.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public async Task<Boolean> UserExists(string email, string cedula, Supabase.Client client)
+        public async Task<AuthRes> RegisterCompany(AuthCompanyReq req)
         {
-            var res = await client
-                .From<User>()
-                .Where(user => user.Email == email || user.Cedula == cedula)
-                .Single();
-
-            return res != null;
-        }
-
-        public async Task<Boolean> CompanyExists(string nit, Supabase.Client client)
-        {
-            var res = await client
-                            .From<User>()
-                            .Where(user => user.CompanyNIT == nit)
-                            .Single();
-
-            return res != null;
-        }
-
-        public async Task<AuthRes> RegisterCompany(AuthCompanyReq req, Supabase.Client client)
-        {
-            if (await UserExists(req.User.Email, req.User.Cedula, client))
+            if (await userRepository.UserExists(req.User.Email, req.User.Cedula))
                 return new AuthRes { ErrorMessage = "Ya existe un usuario con ese correo o cédula registrado" };
-            if (await CompanyExists(req.Company.Type, client))
+            if (await companyRepository.CompanyExists(req.Company.Type))
                 return new AuthRes { ErrorMessage = "Ya existe una empresa con ese nit registrado" };
             if (!CompanyTypeFactory.IsValid(req.Company.Type))
                 return new AuthRes { ErrorMessage = "Tipo de empresa inválido" };
@@ -67,13 +55,7 @@ namespace IncapacidadesSoluciones.Services
 
             try
             {
-                var session = await client.Auth.SignUp(req.User.Email, req.User.Password);
-
-                // trigger event create user
-                var user = await client
-                    .From<User>()
-                    .Where(u => u.Email == req.User.Email)
-                    .Single();
+                var user = await userRepository.SignUp(req.User.Email, req.User.Password);
 
                 if (user == null)
                     return new AuthRes { ErrorMessage = "Error al registrar el usuario y compañia" };
@@ -91,29 +73,24 @@ namespace IncapacidadesSoluciones.Services
                     LeaderId = user.Id
                 };
 
-                var companyRes = await client
-                  .From<Company>()
-                  .Insert(company, new QueryOptions { Returning = QueryOptions.ReturnType.Representation });
-
+                var companyRes = await companyRepository.Insert(company);
+                
                 user.Name = req.User.Name;
                 user.LastName = req.User.LastName;
                 user.Phone = req.User.Phone;
                 user.Cedula = req.User.Cedula;
-                user.CompanyNIT = companyRes?.Models.First().NIT ?? "";
+                user.CompanyNIT = companyRes?.NIT ?? "";
                 user.Role = UserRoleFactory.GetRoleName(USER_ROLE.LEADER);
 
-                var res = await client
-                    .From<User>()
-                    .Where(u => u.Email == req.User.Email)
-                    .Update(user);
+                var res = await userRepository.Update(user);
 
-                if (res.Models.Count == 0)
+                if (res == null)
                     return new AuthRes { ErrorMessage = "Error no se pudo crear el usuario lider" };
 
                 return new AuthRes
                 {
-                    Token = CreateToken(res.Models.First(), USER_ROLE.LEADER),
-                    User = res.Models.First(),
+                    Token = CreateToken(res, USER_ROLE.LEADER),
+                    User = res,
                     ErrorMessage = company == null ? "Error al registrar la compañia" : ""
                 };
             }
@@ -121,12 +98,12 @@ namespace IncapacidadesSoluciones.Services
             {
                 return new AuthRes
                 {
-                    ErrorMessage = "Error al registrar el usuario y compañia"
+                    ErrorMessage = "Error interno al registrar el usuario y compañia"
                 };
             }
         }
 
-        private async Task<Company> RegisterCompany(CompanyReq req, Guid liderId, Supabase.Client client)
+        private async Task<Company> RegisterCompany(CompanyReq req, Guid liderId)
         {
             if (!CompanyTypeFactory.IsValid(req.Type))
                 return null;
@@ -146,28 +123,17 @@ namespace IncapacidadesSoluciones.Services
                 LeaderId = liderId
             };
 
-            var res = await client.
-                From<Company>()
-                .Insert(company, new QueryOptions { Returning = QueryOptions.ReturnType.Representation });
-
-            return res.Models.First();
+            var res = await companyRepository.Insert(company);
+            return res;
         }
 
-        private async Task<AuthRes> RegisterUser(AuthUserReq req, USER_ROLE role, Supabase.Client client)
+        private async Task<AuthRes> RegisterUser(AuthUserReq req, USER_ROLE role)
         {
-            if (await UserExists(req.Email, req.Cedula, client))
+            
+            if (await userRepository.UserExists(req.Email, req.Cedula))
                 return new AuthRes { ErrorMessage = "Ya existe un usuario con ese correo o cédula registrado" };
-
-            var session = await client.Auth.SignUp(req.Email, req.Password);
-
-            if (session == null)
-                return new AuthRes { ErrorMessage = "Error al registrar el usuario" };
-
-            // trigger event create user after sign up
-            var user = await client
-                .From<User>()
-                .Where(u => u.Email == req.Email)
-                .Single();
+            
+            var user = await userRepository.SignUp(req.Email, req.Password);
 
             if (user == null)
                 return new AuthRes { ErrorMessage = "Error al registrar el usuario" };
@@ -178,18 +144,15 @@ namespace IncapacidadesSoluciones.Services
             user.Cedula = req.Cedula;
             user.Role = UserRoleFactory.GetRoleName(role);
 
-            var res = await client
-                .From<User>()
-                .Where(u => u.Email == req.Email)
-                .Update(user);
-
-            if (res.Models.Count == 0)
+            var res = await userRepository.Update(user);
+            
+            if (res == null)
                 return new AuthRes { ErrorMessage = "Error no se pudo crear el usuario" };
 
             return new AuthRes
             {
-                Token = CreateToken(res.Models.First(), role),
-                User = res.Models.First(),
+                Token = CreateToken(res, role),
+                User = res,
                 ErrorMessage = ""
             };
         }

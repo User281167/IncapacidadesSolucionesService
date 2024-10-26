@@ -17,12 +17,12 @@ namespace IncapacidadesSoluciones.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> RegisterCompany(AuthCompanyReq req, Supabase.Client client)
+        public async Task<IActionResult> RegisterCompany(AuthCompanyReq req)
         {
             if (req == null)
                 return BadRequest("La información no puede ser nula.");
 
-            var res = await authService.RegisterCompany(req, client);
+            var res = await authService.RegisterCompany(req);
 
             if (!string.IsNullOrEmpty(res.ErrorMessage) && res.User == null)
                 return BadRequest(res.ErrorMessage != null ? res.ErrorMessage : "El usuario no pudo ser creado.");

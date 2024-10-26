@@ -1,15 +1,26 @@
 ﻿using IncapacidadesSoluciones.Dto;
 using IncapacidadesSoluciones.Models;
+using IncapacidadesSoluciones.Repositories;
 
 namespace IncapacidadesSoluciones.Services
 {
     public class UserService
     {
-        public async Task<User> CreateUser(CreateUserReq user, Supabase.Client client)
+        private readonly IUserRepository userRepository;
+
+        public UserService(IUserRepository userRepository)
         {
-            var newUser = User.FromDto(user);
-            var response = await client.From<User>().Insert(newUser);
-            return response.Models.First();
+            this.userRepository = userRepository;
+        }
+
+        public async Task<User> CreateUser(CreateUserReq userclient)
+        {
+            var newUser = User.FromDto(userclient);
+
+            if (await userRepository.UserExists(newUser.Email, newUser.Cedula))
+                return null;
+
+            return newUser;
         }
     }
 }
