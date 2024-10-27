@@ -9,6 +9,6 @@ namespace IncapacidadesSoluciones.Dto.auth
         public CompanyReq Company { get; set; }
 
         [Required]
-        public AuthUserReq User { get; set; }
+        public AuthUserReq Leader { get; set; }
     }
 }

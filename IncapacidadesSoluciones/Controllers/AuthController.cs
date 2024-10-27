@@ -16,7 +16,7 @@ namespace IncapacidadesSoluciones.Controllers
             this.authService = authService;
         }
 
-        [HttpPost("register")]
+        [HttpPost("signup-company")]
         public async Task<IActionResult> RegisterCompany(AuthCompanyReq req)
         {
             if (req == null)

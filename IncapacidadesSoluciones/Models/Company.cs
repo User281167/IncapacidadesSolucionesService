@@ -12,11 +12,11 @@ namespace IncapacidadesSoluciones.Models
         [@PrimaryKey("id", false)]
         public Guid Id { get; set; }
 
-        [Column("fecha_union")]
+        [Column("fecha_union", ignoreOnInsert: true, ignoreOnUpdate: true)]
         public DateOnly JoinDate { get; set; }
 
         [@Column("nit")]
-        public string NIT { get; set; }
+        public string Nit { get; set; }
         
         [@Column("nombre")]
         public string Name { get; set; }
@@ -28,7 +28,7 @@ namespace IncapacidadesSoluciones.Models
         public string Email { get; set; }
 
         [@Column("creacion")]
-        public DateOnly CreatedAt { get; set; }
+        public DateOnly Founded { get; set; }
 
         [@Column("direccion")]
         public string Address { get; set; }

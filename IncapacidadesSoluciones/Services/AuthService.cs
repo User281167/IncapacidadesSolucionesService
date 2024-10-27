@@ -44,9 +44,9 @@ namespace IncapacidadesSoluciones.Services
 
         public async Task<AuthRes> RegisterCompany(AuthCompanyReq req)
         {
-            if (await userRepository.UserExists(req.User.Email, req.User.Cedula))
+            if (await userRepository.UserExists(req.Leader.Email, req.Leader.Cedula))
                 return new AuthRes { ErrorMessage = "Ya existe un usuario con ese correo o cédula registrado" };
-            if (await companyRepository.CompanyExists(req.Company.Type))
+            if (await companyRepository.CompanyExists(req.Company.Nit))
                 return new AuthRes { ErrorMessage = "Ya existe una empresa con ese nit registrado" };
             if (!CompanyTypeFactory.IsValid(req.Company.Type))
                 return new AuthRes { ErrorMessage = "Tipo de empresa inválido" };
@@ -55,19 +55,19 @@ namespace IncapacidadesSoluciones.Services
 
             try
             {
-                var user = await userRepository.SignUp(req.User.Email, req.User.Password);
+                var user = await userRepository.SignUp(req.Leader.Email, req.Leader.Password);
 
                 if (user == null)
                     return new AuthRes { ErrorMessage = "Error al registrar el usuario y compañia" };
 
                 Company company = new Company
                 {
-                    NIT = req.Company.Type,
-                    Name = req.Company.Type,
-                    Description = req.Company.Type,
-                    Email = req.Company.Type,
-                    CreatedAt = req.Company.CreatedAt,
-                    Address = req.Company.Type,
+                    Nit = req.Company.Nit,
+                    Name = req.Company.Name,
+                    Description = req.Company.Description,
+                    Email = req.Company.Email,
+                    Founded = req.Company.Founded,
+                    Address = req.Company.Address,
                     Type = req.Company.Type.ToLower(),
                     Sector = req.Company.Sector.ToLower(),
                     LeaderId = user.Id
@@ -75,11 +75,11 @@ namespace IncapacidadesSoluciones.Services
 
                 var companyRes = await companyRepository.Insert(company);
                 
-                user.Name = req.User.Name;
-                user.LastName = req.User.LastName;
-                user.Phone = req.User.Phone;
-                user.Cedula = req.User.Cedula;
-                user.CompanyNIT = companyRes?.NIT ?? "";
+                user.Name = req.Leader.Name;
+                user.LastName = req.Leader.LastName;
+                user.Phone = req.Leader.Phone;
+                user.Cedula = req.Leader.Cedula;
+                user.CompanyNIT = companyRes?.Nit ?? "";
                 user.Role = UserRoleFactory.GetRoleName(USER_ROLE.LEADER);
 
                 var res = await userRepository.Update(user);
@@ -98,7 +98,7 @@ namespace IncapacidadesSoluciones.Services
             {
                 return new AuthRes
                 {
-                    ErrorMessage = "Error interno al registrar el usuario y compañia " + ex.Message
+                    ErrorMessage = "Error interno al registrar el usuario y compañia"
                 };
             }
         }
@@ -112,11 +112,11 @@ namespace IncapacidadesSoluciones.Services
 
             var company = new Company
             {
-                NIT = req.Nit,
+                Nit = req.Nit,
                 Name = req.Name,
                 Description = req.Description,
                 Email = req.Email,
-                CreatedAt = req.CreatedAt,
+                Founded = req.Founded,
                 Address = req.Address,
                 Type = req.Type.ToLower(),
                 Sector = req.Sector.ToLower(),

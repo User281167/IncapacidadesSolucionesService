@@ -17,7 +17,7 @@ namespace IncapacidadesSoluciones.Repositories
         {
             var res = await client
                 .From<Company>()
-                .Where(company => company.NIT == nit)
+                .Where(company => company.Nit == nit)
                 .Single();
 
             return res != null;

@@ -39,7 +39,7 @@ namespace TestIncapacidaesSoluciones
             Name = "test",
             Description = "test",
             Email = "test@test.com",
-            CreatedAt = DateOnly.FromDateTime(DateTime.Now),
+            Founded = DateOnly.FromDateTime(DateTime.Now),
             Address = "test",
             Type = "test",
             Sector = "test"
@@ -82,10 +82,10 @@ namespace TestIncapacidaesSoluciones
             // Arrange
             var req = new AuthCompanyReq {
                 Company = companyTets,
-                User = userTest
+                Leader = userTest
             };
 
-            userRepository.Setup(repo => repo.UserExists(req.User.Email, req.User.Cedula)).ReturnsAsync(true);
+            userRepository.Setup(repo => repo.UserExists(req.Leader.Email, req.Leader.Cedula)).ReturnsAsync(true);
 
             // Act
             var res = await authController.RegisterCompany(req);
@@ -102,7 +102,7 @@ namespace TestIncapacidaesSoluciones
             var req = new AuthCompanyReq
             {
                 Company = companyTets,
-                User = userTest
+                Leader = userTest
             };
 
             companyRepository.Setup(repo => repo.CompanyExists(req.Company.Nit)).ReturnsAsync(true);
@@ -122,7 +122,7 @@ namespace TestIncapacidaesSoluciones
             var req = new AuthCompanyReq
             {
                 Company = companyTets,
-                User = userTest
+                Leader = userTest
             };
 
             // Act
@@ -143,7 +143,7 @@ namespace TestIncapacidaesSoluciones
             var req = new AuthCompanyReq
             {
                 Company = company,
-                User = userTest
+                Leader = userTest
             };
 
             // Act
@@ -165,7 +165,7 @@ namespace TestIncapacidaesSoluciones
             var req = new AuthCompanyReq
             {
                 Company = company,
-                User = userTest
+                Leader = userTest
             };
 
             // Act
@@ -187,10 +187,10 @@ namespace TestIncapacidaesSoluciones
             var req = new AuthCompanyReq
             {
                 Company = company,
-                User = userTest
+                Leader = userTest
             };
 
-            userRepository.Setup(repo => repo.SignUp(req.User.Email, req.User.Password)).ReturnsAsync(new User());
+            userRepository.Setup(repo => repo.SignUp(req.Leader.Email, req.Leader.Password)).ReturnsAsync(new User());
             userRepository.Setup(repo => repo.Update(new User())).ReturnsAsync(new User());
 
             // Act
@@ -214,21 +214,21 @@ namespace TestIncapacidaesSoluciones
             var req = new AuthCompanyReq
             {
                 Company = company,
-                User = userTest
+                Leader = userTest
             };
 
             var user = new User
             {
                 Id = new Guid(),
-                Name = req.User.Name,
-                LastName = req.User.LastName,
-                Phone = req.User.Phone,
-                Cedula = req.User.Cedula,
-                Email = req.User.Email
+                Name = req.Leader.Name,
+                LastName = req.Leader.LastName,
+                Phone = req.Leader.Phone,
+                Cedula = req.Leader.Cedula,
+                Email = req.Leader.Email
             };
 
             environmentMock.Setup(env => env.GetEnvironmentVariable("JWT_KEY")).Returns(JWT_KEY_TEST);
-            userRepository.Setup(repo => repo.SignUp(req.User.Email, req.User.Password)).ReturnsAsync(user);
+            userRepository.Setup(repo => repo.SignUp(req.Leader.Email, req.Leader.Password)).ReturnsAsync(user);
             userRepository.Setup(repo => repo.Update(It.IsAny<User>())).ReturnsAsync(user);
             //companyRepository.Setup(repo => repo.Insert(It.IsAny<Company>())).ReturnsAsync(new Company());
 
@@ -261,21 +261,21 @@ namespace TestIncapacidaesSoluciones
             var req = new AuthCompanyReq
             {
                 Company = company,
-                User = userTest
+                Leader = userTest
             };
 
             var user = new User
             {
                 Id = new Guid(),
-                Name = req.User.Name,
-                LastName = req.User.LastName,
-                Phone = req.User.Phone,
-                Cedula = req.User.Cedula,
-                Email = req.User.Email
+                Name = req.Leader.Name,
+                LastName = req.Leader.LastName,
+                Phone = req.Leader.Phone,
+                Cedula = req.Leader.Cedula,
+                Email = req.Leader.Email
             };
 
             environmentMock.Setup(env => env.GetEnvironmentVariable("JWT_KEY")).Returns(JWT_KEY_TEST);
-            userRepository.Setup(repo => repo.SignUp(req.User.Email, req.User.Password)).ReturnsAsync(user);
+            userRepository.Setup(repo => repo.SignUp(req.Leader.Email, req.Leader.Password)).ReturnsAsync(user);
             userRepository.Setup(repo => repo.Update(It.IsAny<User>())).ReturnsAsync(user);
             companyRepository.Setup(repo => repo.Insert(It.IsAny<Company>())).ReturnsAsync(new Company());
 

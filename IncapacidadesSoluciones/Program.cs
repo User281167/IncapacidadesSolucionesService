@@ -9,8 +9,21 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var localOrigin = "localhost";
 
+// cors
+builder.Services.AddCors(options =>
+{
+    if (!string.IsNullOrEmpty(localOrigin) && builder.Environment.IsDevelopment())
+    {
+        options.AddPolicy(name: localOrigin, builder =>
+        {
+            builder.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost").AllowAnyMethod().AllowAnyHeader();
+        });
+    }
+});
+
+// Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -75,6 +88,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseCors(localOrigin);
 }
 
 app.UseHttpsRedirection();

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 
 namespace IncapacidadesSoluciones.Dto.Company
 {
@@ -6,28 +7,25 @@ namespace IncapacidadesSoluciones.Dto.Company
     {
         public Guid Id { get; set; }
 
-        [Required, MinLength(1)]
+        [Required(ErrorMessage = "El nit de la empresa es requerido"), MinLength(1)]
         public string Nit { get; set; }
 
-        [Required, MinLength(1)]
+        [Required(ErrorMessage = "El nombre de la empresa es requerido"), MinLength(1)]
         public string Name { get; set; }
         
-        [Required]
         public string Description { get; set; }
         
-        [Required, EmailAddress]
+        [Required(ErrorMessage = "El email de la empresa es requerido"), EmailAddress]
         public string Email { get; set; }
+
+        public DateOnly Founded { get; set; }
         
-        [Required]
-        public DateOnly CreatedAt { get; set; }
-        
-        [Required]
         public string Address { get; set; }
         
-        [Required]
+        [Required(ErrorMessage = "El tipo de la empresa es requerido"), MinLength(1)]
         public string Type { get; set; }
         
-        [Required]
+        [Required(ErrorMessage = "El sector de la empresa es requerido"), MinLength(1)]
         public string Sector { get; set; }
     }
 }
