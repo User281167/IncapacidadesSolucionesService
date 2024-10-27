@@ -28,7 +28,7 @@ namespace IncapacidadesSoluciones.Models
         public string Email { get; set; }
 
         [@Column("creacion")]
-        public DateOnly Founded { get; set; }
+        public DateOnly ?Founded { get; set; }
 
         [@Column("direccion")]
         public string Address { get; set; }

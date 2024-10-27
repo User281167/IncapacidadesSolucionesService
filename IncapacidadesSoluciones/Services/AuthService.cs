@@ -66,7 +66,7 @@ namespace IncapacidadesSoluciones.Services
                     Name = req.Company.Name,
                     Description = req.Company.Description,
                     Email = req.Company.Email,
-                    Founded = req.Company.Founded,
+                    Founded = req.Company.Founded ?? null,
                     Address = req.Company.Address,
                     Type = req.Company.Type.ToLower(),
                     Sector = req.Company.Sector.ToLower(),
