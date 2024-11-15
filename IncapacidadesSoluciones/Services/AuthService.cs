@@ -4,10 +4,7 @@ using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Repositories;
 using IncapacidadesSoluciones.Utilities.Company;
 using IncapacidadesSoluciones.Utilities.Role;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+
 
 namespace IncapacidadesSoluciones.Services
 {
@@ -22,25 +19,6 @@ namespace IncapacidadesSoluciones.Services
             this.companyRepository = companyRepository;
         }
 
-        private string CreateToken(User user, USER_ROLE role)
-        {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY")));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Name),
-                new Claim(ClaimTypes.Role, UserRoleFactory.GetRoleName(role)),
-            };
-
-            var token = new JwtSecurityToken(
-                claims: claims,
-                expires: DateTime.Now.AddDays(1),
-                signingCredentials: credentials
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
 
         public async Task<AuthRes> RegisterCompany(AuthCompanyReq req)
         {
@@ -89,7 +67,7 @@ namespace IncapacidadesSoluciones.Services
 
                 return new AuthRes
                 {
-                    Token = CreateToken(res, USER_ROLE.LEADER),
+                    Token = JWT.CreateToken(res, USER_ROLE.LEADER),
                     User = res,
                     ErrorMessage = companyRes == null ? "Error al registrar la compañia" : ""
                 };
@@ -151,7 +129,7 @@ namespace IncapacidadesSoluciones.Services
 
             return new AuthRes
             {
-                Token = CreateToken(res, role),
+                Token = JWT.CreateToken(res, role),
                 User = res,
                 ErrorMessage = ""
             };
