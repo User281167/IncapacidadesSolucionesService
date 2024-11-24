@@ -24,10 +24,11 @@ namespace TestIncapacidaesSoluciones
         }
     }
 
-    public class Auth
+    public class AuthCompany
     {
         private readonly Mock<IUserRepository> userRepository;
         private readonly Mock<ICompanyRepository> companyRepository;
+        private readonly Mock<ILoginCodeRepository> loginCodeRepository;
         private readonly AuthService authService;
         private readonly AuthController authController;
         private readonly new Mock<IEnvironmentWrapper> environmentMock;
@@ -47,7 +48,7 @@ namespace TestIncapacidaesSoluciones
 
         private readonly AuthUserReq userTest = new AuthUserReq
         {
-            LoginCode = new Guid(),
+            LoginCode = "test",
             Name = "test",
             LastName = "test",
             Phone = "test",
@@ -58,11 +59,13 @@ namespace TestIncapacidaesSoluciones
 
         private readonly string JWT_KEY_TEST = "afsdkjasjflxswafsdklk434orqiwup3457u-34oewir4irroqwiffv48mfs";
 
-        public Auth()
+        public AuthCompany()
         {
             userRepository = new Mock<IUserRepository>();
             companyRepository = new Mock<ICompanyRepository>();
-            authService = new AuthService(userRepository.Object, companyRepository.Object);
+            loginCodeRepository = new Mock<ILoginCodeRepository>();
+
+            authService = new AuthService(userRepository.Object, companyRepository.Object, loginCodeRepository.Object);
             authController = new AuthController(authService);
             environmentMock = new Mock<IEnvironmentWrapper>();
         }
