@@ -109,8 +109,8 @@ namespace TestIncapacidadesSoluciones.auth
             var res = await authController.RegisterUser(userReq);
             var ok = Assert.IsType<OkObjectResult>(res);
             var authRes = ok.Value as AuthRes;
-
-            Assert.Equal("Usuario creado con exito.", authRes.Message);
+            
+            Assert.Empty(authRes.ErrorMessage);
             Assert.NotEmpty(authRes.Token);
         }
     }
