@@ -8,22 +8,10 @@ using IncapacidadesSoluciones.Utilities.Company;
 using IncapacidadesSoluciones.Utilities.Role;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using TestIncapacidadesSoluciones.auth;
 
 namespace TestIncapacidaesSoluciones
 {
-    public interface IEnvironmentWrapper
-    {
-        string GetEnvironmentVariable(string key);
-    }
-
-    public class EnvironmentWrapper : IEnvironmentWrapper
-    {
-        public string GetEnvironmentVariable(string key)
-        {
-            return Environment.GetEnvironmentVariable(key);
-        }
-    }
-
     public class AuthCompany
     {
         private readonly Mock<IUserRepository> userRepository;
@@ -57,7 +45,6 @@ namespace TestIncapacidaesSoluciones
             Password = "test"
         };
 
-        private readonly string JWT_KEY_TEST = "afsdkjasjflxswafsdklk434orqiwup3457u-34oewir4irroqwiffv48mfs";
 
         public AuthCompany()
         {
@@ -208,7 +195,7 @@ namespace TestIncapacidaesSoluciones
         public async void RegisterCompanyAndLeader_Company_OkRequest()
         {
             // Arrange
-            Environment.SetEnvironmentVariable("JWT_KEY", JWT_KEY_TEST);
+            Environment.SetEnvironmentVariable("JWT_KEY", EnvironmentWrapper.JWT_KEY_TEST);
 
             var company = companyTets;
             company.Type = CompanyTypeFactory.GetCompanyType(COMPANY_TYPE.SMALL);
@@ -230,7 +217,7 @@ namespace TestIncapacidaesSoluciones
                 Email = req.Leader.Email
             };
 
-            environmentMock.Setup(env => env.GetEnvironmentVariable("JWT_KEY")).Returns(JWT_KEY_TEST);
+            environmentMock.Setup(env => env.GetEnvironmentVariable("JWT_KEY")).Returns(EnvironmentWrapper.JWT_KEY_TEST);
             userRepository.Setup(repo => repo.SignUp(req.Leader.Email, req.Leader.Password)).ReturnsAsync(user);
             userRepository.Setup(repo => repo.Update(It.IsAny<User>())).ReturnsAsync(user);
 
@@ -254,7 +241,7 @@ namespace TestIncapacidaesSoluciones
         public async void RegisterCompanyAndLeader_Company_Ok()
         {
             // Arrange
-            Environment.SetEnvironmentVariable("JWT_KEY", JWT_KEY_TEST);
+            Environment.SetEnvironmentVariable("JWT_KEY", EnvironmentWrapper.JWT_KEY_TEST);
 
             var company = companyTets;
             company.Type = CompanyTypeFactory.GetCompanyType(COMPANY_TYPE.SMALL);
@@ -276,7 +263,7 @@ namespace TestIncapacidaesSoluciones
                 Email = req.Leader.Email
             };
 
-            environmentMock.Setup(env => env.GetEnvironmentVariable("JWT_KEY")).Returns(JWT_KEY_TEST);
+            environmentMock.Setup(env => env.GetEnvironmentVariable("JWT_KEY")).Returns(EnvironmentWrapper.JWT_KEY_TEST);
             userRepository.Setup(repo => repo.SignUp(req.Leader.Email, req.Leader.Password)).ReturnsAsync(user);
             userRepository.Setup(repo => repo.Update(It.IsAny<User>())).ReturnsAsync(user);
             companyRepository.Setup(repo => repo.Insert(It.IsAny<Company>())).ReturnsAsync(new Company());

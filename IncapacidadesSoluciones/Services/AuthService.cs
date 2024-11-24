@@ -83,6 +83,9 @@ namespace IncapacidadesSoluciones.Services
 
         public async Task<AuthRes> RegisterUser(AuthUserReq req, USER_ROLE role)
         {
+            if (req.AccessCode == null || req.AccessCode == "")
+                return new AuthRes { ErrorMessage = "Código de acceso requerido" };
+
             var code = await accessCodeRepository.GetByCode(req.AccessCode);
 
             if (code == null)
