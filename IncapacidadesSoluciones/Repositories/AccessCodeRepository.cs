@@ -12,7 +12,7 @@ namespace IncapacidadesSoluciones.Repositories
             this.client = client;
         }
 
-        public async Task<AccessCode> GetLoginCodeById(Guid id)
+        public async Task<AccessCode> GetById(Guid id)
         {
             var res = await client
                 .From<AccessCode>()
@@ -22,7 +22,7 @@ namespace IncapacidadesSoluciones.Repositories
             return res;
         }
 
-        public async Task<AccessCode> GetLoginCodeByCode(string code)
+        public async Task<AccessCode> GetByCode(string code)
         {
             var res = await client
                 .From<AccessCode>()
@@ -41,9 +41,9 @@ namespace IncapacidadesSoluciones.Repositories
             return res.Models.First();
         }
 
-        public async Task<bool> LoginCodeExists(string code)
+        public async Task<bool> Exists(string code)
         {
-            var res = await GetLoginCodeByCode(code);
+            var res = await GetByCode(code);
             return res != null;
         }
 

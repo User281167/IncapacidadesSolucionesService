@@ -83,7 +83,7 @@ namespace IncapacidadesSoluciones.Services
 
         public async Task<AuthRes> RegisterUser(AuthUserReq req, USER_ROLE role)
         {
-            var code = await accessCodeRepository.GetLoginCodeByCode(req.LoginCode);
+            var code = await accessCodeRepository.GetByCode(req.LoginCode);
 
             if (code == null)
                 return new AuthRes { ErrorMessage = "Código de acceso inválido" };
@@ -117,7 +117,7 @@ namespace IncapacidadesSoluciones.Services
             };
         }
 
-        public async Task<ApiRes<AccessCode>> CreateAccessCode(AuthLoginCodeReq req)
+        public async Task<ApiRes<AccessCode>> CreateAccessCode(AuthAccessCodeReq req)
         {
             var company = await companyRepository.GetCompany(req.CompanyId);
 
@@ -135,15 +135,15 @@ namespace IncapacidadesSoluciones.Services
             return new ApiRes<AccessCode> { Data = res, Success = true, Message = "Código de acceso generado con exito." };
         }
 
-        public async Task<ApiRes<AccessCode>> UpdateAccessCode(AuthLoginCodeReq req)
+        public async Task<ApiRes<AccessCode>> UpdateAccessCode(AuthAccessCodeReq req)
         {
             var company = await companyRepository.GetCompany(req.CompanyId);
-            var code = await accessCodeRepository.GetLoginCodeById(req.Id);
+            var code = await accessCodeRepository.GetById(req.Id);
 
             if (company == null)
                 return new ApiRes<AccessCode> { Success = false, Message = "No se pudo encontrar la empresa." };
             else if (code == null)
-                return new ApiRes<AccessCode> { Success = false, Message = "No se pudo encontrar el código de acceso." };
+                return await CreateAccessCode(req);
 
             code.NIT = company.Nit;
             code.ExpirationDate = req.ExpirationDate;

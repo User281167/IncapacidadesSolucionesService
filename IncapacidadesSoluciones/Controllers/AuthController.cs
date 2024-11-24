@@ -47,8 +47,8 @@ namespace IncapacidadesSoluciones.Controllers
             return Ok(res);
         }
 
-        [HttpPost("login-code-update"), Authorize(Roles = "LIDER")]
-        public async Task<IActionResult> CreateCode(AuthLoginCodeReq req)
+        [HttpPost("access-code-add"), Authorize(Roles = "LIDER")]
+        public async Task<IActionResult> AddAccessCode(AuthAccessCodeReq req)
         {
             if (req == null)
                 return BadRequest("La información no puede ser nula.");

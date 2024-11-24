@@ -2,7 +2,7 @@
 
 namespace IncapacidadesSoluciones.Dto.auth
 {
-    public class AuthLoginCodeReq
+    public class AuthAccessCodeReq
     {
         public Guid Id { get; set; }
 
