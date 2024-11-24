@@ -1,10 +1,9 @@
-﻿using IncapacidadesSoluciones.Dto.auth;
-using IncapacidadesSoluciones.Dto.Company;
+﻿using IncapacidadesSoluciones.Dto;
+using IncapacidadesSoluciones.Dto.auth;
 using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Repositories;
 using IncapacidadesSoluciones.Utilities.Company;
 using IncapacidadesSoluciones.Utilities.Role;
-
 
 namespace IncapacidadesSoluciones.Services
 {
@@ -12,13 +11,14 @@ namespace IncapacidadesSoluciones.Services
     {
         private readonly IUserRepository userRepository;
         private readonly ICompanyRepository companyRepository;
+        private readonly ILoginCodeRepository loginCodeRepository;
 
-        public AuthService(IUserRepository userRepository, ICompanyRepository companyRepository)
+        public AuthService(IUserRepository userRepository, ICompanyRepository companyRepository, ILoginCodeRepository loginCodeRepository)
         {
             this.userRepository = userRepository;
             this.companyRepository = companyRepository;
+            this.loginCodeRepository = loginCodeRepository;
         }
-
 
         public async Task<AuthRes> RegisterCompany(AuthCompanyReq req)
         {
@@ -52,7 +52,7 @@ namespace IncapacidadesSoluciones.Services
                 };
 
                 var companyRes = await companyRepository.Insert(company);
-                
+
                 user.Name = req.Leader.Name;
                 user.LastName = req.Leader.LastName;
                 user.Phone = req.Leader.Phone;
@@ -76,41 +76,22 @@ namespace IncapacidadesSoluciones.Services
             {
                 return new AuthRes
                 {
-                    ErrorMessage = "Error interno al registrar el usuario y compañia"
+                    ErrorMessage = "Error interno al registrar el usuario y compañia " + ex
                 };
             }
         }
 
-        private async Task<Company> RegisterCompany(CompanyReq req, Guid liderId)
+        public async Task<AuthRes> RegisterUser(AuthUserReq req, USER_ROLE role)
         {
-            if (!CompanyTypeFactory.IsValid(req.Type))
-                return null;
-            if (!CompanySectorFactory.IsValid(req.Sector))
-                return null;
+            var code = await loginCodeRepository.GetLoginCodeByCode(req.LoginCode);
 
-            var company = new Company
-            {
-                Nit = req.Nit,
-                Name = req.Name,
-                Description = req.Description,
-                Email = req.Email,
-                Founded = req.Founded,
-                Address = req.Address,
-                Type = req.Type.ToLower(),
-                Sector = req.Sector.ToLower(),
-                LeaderId = liderId
-            };
-
-            var res = await companyRepository.Insert(company);
-            return res;
-        }
-
-        private async Task<AuthRes> RegisterUser(AuthUserReq req, USER_ROLE role)
-        {
-            
-            if (await userRepository.UserExists(req.Email, req.Cedula))
+            if (code == null)
+                return new AuthRes { ErrorMessage = "Código de acceso inválido" };
+            else if (code.ExpirationDate != null && code.ExpirationDate < DateOnly.FromDateTime(DateTime.Now))
+                return new AuthRes { ErrorMessage = "Código de acceso expirado" };
+            else if (await userRepository.UserExists(req.Email, req.Cedula))
                 return new AuthRes { ErrorMessage = "Ya existe un usuario con ese correo o cédula registrado" };
-            
+
             var user = await userRepository.SignUp(req.Email, req.Password);
 
             if (user == null)
@@ -121,9 +102,10 @@ namespace IncapacidadesSoluciones.Services
             user.Phone = req.Phone;
             user.Cedula = req.Cedula;
             user.Role = UserRoleFactory.GetRoleName(role);
+            user.CompanyNIT = code.NIT;
 
             var res = await userRepository.Update(user);
-            
+
             if (res == null)
                 return new AuthRes { ErrorMessage = "Error no se pudo crear el usuario" };
 
@@ -133,6 +115,42 @@ namespace IncapacidadesSoluciones.Services
                 User = res,
                 ErrorMessage = ""
             };
+        }
+
+        public async Task<ApiRes<LoginCode>> CreateLoginCode(AuthLoginCodeReq req)
+        {
+            var company = await companyRepository.GetCompany(req.CompanyId);
+
+            if (company == null)
+                return new ApiRes<LoginCode> { Success = false, Message = "No se pudo encontrar la empresa." };
+
+            var code = new LoginCode
+            {
+                NIT = company.Nit,
+                ExpirationDate = req.ExpirationDate,
+                Code = LoginCode.GenerateCode(company.Name)
+            };
+
+            var res = await loginCodeRepository.Insert(code);
+            return new ApiRes<LoginCode> { Data = res, Success = true, Message = "Código de acceso generado con exito." };
+        }
+
+        public async Task<ApiRes<LoginCode>> UpdateLoginCode(AuthLoginCodeReq req)
+        {
+            var company = await companyRepository.GetCompany(req.CompanyId);
+            var code = await loginCodeRepository.GetLoginCodeById(req.Id);
+
+            if (company == null)
+                return new ApiRes<LoginCode> { Success = false, Message = "No se pudo encontrar la empresa." };
+            else if (code == null)
+                return new ApiRes<LoginCode> { Success = false, Message = "No se pudo encontrar el código de acceso." };
+
+            code.NIT = company.Nit;
+            code.ExpirationDate = req.ExpirationDate;
+            code.Code = LoginCode.GenerateCode(company.Name);
+
+            var res = await loginCodeRepository.Update(code);
+            return new ApiRes<LoginCode> { Data = res, Success = true, Message = "Código de acceso actualizado con exito." };
         }
     }
 }

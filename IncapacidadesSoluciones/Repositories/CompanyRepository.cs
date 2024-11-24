@@ -13,13 +13,29 @@ namespace IncapacidadesSoluciones.Repositories
             this.client = client;
         }
 
-        public async Task<Boolean> CompanyExists(string nit)
+        public async Task<Company> GetCompany(Guid id)
+        {
+            var res = await client
+                .From<Company>()
+                .Where(company => company.Id == id)
+                .Single();
+
+            return res;
+        }
+
+        public async Task<Company> GetCompanyByNit(string nit)
         {
             var res = await client
                 .From<Company>()
                 .Where(company => company.Nit == nit)
                 .Single();
 
+            return res;
+        }
+
+        public async Task<Boolean> CompanyExists(string nit)
+        {
+            var res = await GetCompanyByNit(nit);
             return res != null;
         }
 
