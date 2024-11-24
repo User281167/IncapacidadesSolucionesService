@@ -47,7 +47,7 @@ namespace IncapacidadesSoluciones.Controllers
             return Ok(res);
         }
 
-        [HttpPost("access-code-add"), Authorize(Roles = "LIDER")]
+        [HttpPost("generate-access-code"), Authorize(Roles = "LIDER")]
         public async Task<IActionResult> AddAccessCode(AuthAccessCodeReq req)
         {
             if (req == null)
