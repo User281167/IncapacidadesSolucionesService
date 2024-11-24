@@ -83,7 +83,7 @@ namespace IncapacidadesSoluciones.Services
 
         public async Task<AuthRes> RegisterUser(AuthUserReq req, USER_ROLE role)
         {
-            var code = await accessCodeRepository.GetByCode(req.LoginCode);
+            var code = await accessCodeRepository.GetByCode(req.AccessCode);
 
             if (code == null)
                 return new AuthRes { ErrorMessage = "Código de acceso inválido" };

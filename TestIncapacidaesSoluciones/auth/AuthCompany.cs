@@ -48,7 +48,7 @@ namespace TestIncapacidaesSoluciones
 
         private readonly AuthUserReq userTest = new AuthUserReq
         {
-            LoginCode = "test",
+            AccessCode = "test",
             Name = "test",
             LastName = "test",
             Phone = "test",
