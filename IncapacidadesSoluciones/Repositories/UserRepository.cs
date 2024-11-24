@@ -53,5 +53,15 @@ namespace IncapacidadesSoluciones.Repositories
 
             return res.Models.First();
         }
+
+        public async Task<User> SignIn(string email, string password)
+        {
+            var session = await client.Auth.SignIn(email, password);
+
+            if (session == null || session.User == null)
+                return null;
+
+            return await GetUserByEmail(session.User.Email);
+        }
     }
 }

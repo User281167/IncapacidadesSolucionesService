@@ -66,6 +66,13 @@ namespace IncapacidadesSoluciones.Controllers
         {
             if (req == null)
                 return BadRequest("La información no puede ser nula.");
+
+            var res = await authService.Login(req);
+
+            if (!string.IsNullOrEmpty(res.ErrorMessage) && res.User == null)
+                return BadRequest(res.ErrorMessage);
+
+            return Ok(res);
         }
     }
 }

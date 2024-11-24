@@ -155,5 +155,32 @@ namespace IncapacidadesSoluciones.Services
             var res = await accessCodeRepository.Update(code);
             return new ApiRes<AccessCode> { Data = res, Success = true, Message = "Código de acceso actualizado con exito." };
         }
+   
+        public async Task<AuthRes> Login(AuthLoginReq req)
+        {
+            User user;
+
+            try
+            {
+                user = await userRepository.SignIn(req.Email, req.Password);
+            } catch (Supabase.Gotrue.Exceptions.GotrueException ex)
+            {
+                if (ex.StatusCode == 400)
+                    return new AuthRes { ErrorMessage = "Credenciales incorrectas." };
+
+                return new AuthRes { ErrorMessage = "Error al iniciar sesión intentalo más tarde." };
+            }
+
+            if (user == null)
+                return new AuthRes { ErrorMessage = "Error al iniciar sesión comprueba tus credenciales." };
+
+            var role = UserRoleFactory.GetRole(user.Role);
+
+            return new AuthRes
+            {
+                User = user,
+                Token = JWT.CreateToken(user, role)
+            };
+        }
     }
 }

@@ -2,20 +2,27 @@
 {
     public class UserRoleFactory
     {
+        public readonly static Dictionary<USER_ROLE, string> roles = new Dictionary<USER_ROLE, string>()
+            {
+                {USER_ROLE.ASSISTANT , "AUXILIAR"},
+                {USER_ROLE.RECEPTIONIST, "RECEPCIONISTA"},
+                {USER_ROLE.ADVISER, "ASESOR"},
+                {USER_ROLE.LEADER, "LIDER"},
+                {USER_ROLE.COLLABORATOR, "COLABORADOR"},
+                {USER_ROLE.DOCUMENTAL_MANAGEMENT, "GESTION_DOCUMENTAL"},
+                {USER_ROLE.LEGAL_PORTFORT, "CARTERA_JURIDICA"},
+                {USER_ROLE.ACCOUNTING , "CONTABILIDAD"},
+            };
+
         public static string GetRoleName(USER_ROLE role)
         {
-            switch (role)
-            {
-                case USER_ROLE.ASSISTANT: return "AUXILIAR";
-                case USER_ROLE.RECEPTIONIST: return "RECEPCIONISTA";
-                case USER_ROLE.ADVISER: return "ASESOR";
-                case USER_ROLE.LEADER: return "LIDER";
-                case USER_ROLE.COLLABORATOR: return "COLABORADOR";
-                case USER_ROLE.DOCUMENTAL_MANAGEMENT: return "GESTION_DOCUMENTAL";
-                case USER_ROLE.LEGAL_PORTFORT: return "CARTERA_JURIDICA";
-                case USER_ROLE.ACCOUNTING: return "CONTABILIDAD";
-                default: return "";
-            }
+            return roles.TryGetValue(role, out var value) ? value : "";
+        }
+
+        public static USER_ROLE GetRole(string roleName)
+        {
+            var item= roles.SingleOrDefault(r => r.Value == roleName.ToUpper());
+            return item.Key;
         }
     }
 }

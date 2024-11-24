@@ -8,5 +8,6 @@ namespace IncapacidadesSoluciones.Repositories
         Task<User> GetUserByEmail(string email);
         Task<User> SignUp(string email, string pasword);
         Task<User> Update(User user);
+        Task<User> SignIn(string email, string password);
     }
 }
