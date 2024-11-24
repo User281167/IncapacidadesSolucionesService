@@ -1,4 +1,4 @@
-﻿using IncapacidadesSoluciones.Dto;
+﻿using IncapacidadesSoluciones.Dto.auth;
 using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Repositories;
 

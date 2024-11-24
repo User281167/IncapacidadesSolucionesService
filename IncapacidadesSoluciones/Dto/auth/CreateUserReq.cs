@@ -1,4 +1,4 @@
-﻿namespace IncapacidadesSoluciones.Dto
+﻿namespace IncapacidadesSoluciones.Dto.auth
 {
     public class CreateUserReq
     {
@@ -9,6 +9,6 @@
         public string Phone { get; set; }
         public string CompanyNIT { get; set; }
         public DateOnly JoinDate { get; set; }
-        public String Role { get; set; }
+        public string Role { get; set; }
     }
 }

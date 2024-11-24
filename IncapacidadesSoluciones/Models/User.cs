@@ -3,7 +3,7 @@
 using Table = Supabase.Postgrest.Attributes.TableAttribute;
 using Column = Supabase.Postgrest.Attributes.ColumnAttribute;
 using PrimaryKey = Supabase.Postgrest.Attributes.PrimaryKeyAttribute;
-using IncapacidadesSoluciones.Dto;
+using IncapacidadesSoluciones.Dto.auth;
 
 namespace IncapacidadesSoluciones.Models
 {

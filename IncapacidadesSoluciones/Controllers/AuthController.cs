@@ -60,5 +60,12 @@ namespace IncapacidadesSoluciones.Controllers
 
             return Ok(res);
         }
+
+        [HttpPost("login"), AllowAnonymous]
+        public async Task<IActionResult> Login(AuthLoginReq req)
+        {
+            if (req == null)
+                return BadRequest("La información no puede ser nula.");
+        }
     }
 }

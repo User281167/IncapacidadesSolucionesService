@@ -1,4 +1,4 @@
-﻿using IncapacidadesSoluciones.Dto;
+﻿using IncapacidadesSoluciones.Dto.auth;
 using IncapacidadesSoluciones.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
