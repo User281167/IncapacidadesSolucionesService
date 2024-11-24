@@ -28,7 +28,7 @@ namespace TestIncapacidaesSoluciones
     {
         private readonly Mock<IUserRepository> userRepository;
         private readonly Mock<ICompanyRepository> companyRepository;
-        private readonly Mock<ILoginCodeRepository> loginCodeRepository;
+        private readonly Mock<IAccessCodeRepository> accessCodeRepository;
         private readonly AuthService authService;
         private readonly AuthController authController;
         private readonly new Mock<IEnvironmentWrapper> environmentMock;
@@ -63,9 +63,9 @@ namespace TestIncapacidaesSoluciones
         {
             userRepository = new Mock<IUserRepository>();
             companyRepository = new Mock<ICompanyRepository>();
-            loginCodeRepository = new Mock<ILoginCodeRepository>();
+            accessCodeRepository = new Mock<IAccessCodeRepository>();
 
-            authService = new AuthService(userRepository.Object, companyRepository.Object, loginCodeRepository.Object);
+            authService = new AuthService(userRepository.Object, companyRepository.Object, accessCodeRepository.Object);
             authController = new AuthController(authService);
             environmentMock = new Mock<IEnvironmentWrapper>();
         }
@@ -233,7 +233,6 @@ namespace TestIncapacidaesSoluciones
             environmentMock.Setup(env => env.GetEnvironmentVariable("JWT_KEY")).Returns(JWT_KEY_TEST);
             userRepository.Setup(repo => repo.SignUp(req.Leader.Email, req.Leader.Password)).ReturnsAsync(user);
             userRepository.Setup(repo => repo.Update(It.IsAny<User>())).ReturnsAsync(user);
-            //companyRepository.Setup(repo => repo.Insert(It.IsAny<Company>())).ReturnsAsync(new Company());
 
             // Act
             var res = await authController.RegisterCompany(req);

@@ -3,39 +3,39 @@ using QueryOptions = Supabase.Postgrest.QueryOptions;
 
 namespace IncapacidadesSoluciones.Repositories
 {
-    public class LoginCodeRepository : ILoginCodeRepository
+    public class AccessCodeRepository : IAccessCodeRepository
     {
         private readonly Supabase.Client client;
 
-        public LoginCodeRepository(Supabase.Client client)
+        public AccessCodeRepository(Supabase.Client client)
         {
             this.client = client;
         }
 
-        public async Task<LoginCode> GetLoginCodeById(Guid id)
+        public async Task<AccessCode> GetLoginCodeById(Guid id)
         {
             var res = await client
-                .From<LoginCode>()
+                .From<AccessCode>()
                 .Where(loginCode => loginCode.Id == id)
                 .Single();
 
             return res;
         }
 
-        public async Task<LoginCode> GetLoginCodeByCode(string code)
+        public async Task<AccessCode> GetLoginCodeByCode(string code)
         {
             var res = await client
-                .From<LoginCode>()
+                .From<AccessCode>()
                 .Where(loginCode => loginCode.Code == code)
                 .Single();
 
             return res;
         }
 
-        public async Task<LoginCode> Insert(LoginCode loginCode)
+        public async Task<AccessCode> Insert(AccessCode loginCode)
         {
             var res = await client
-                .From<LoginCode>()
+                .From<AccessCode>()
                 .Insert(loginCode, new QueryOptions { Returning = QueryOptions.ReturnType.Representation });
 
             return res.Models.First();
@@ -47,10 +47,10 @@ namespace IncapacidadesSoluciones.Repositories
             return res != null;
         }
 
-        public async Task<LoginCode> Update(LoginCode loginCode)
+        public async Task<AccessCode> Update(AccessCode loginCode)
         {
             var res = await client
-                .From<LoginCode>()
+                .From<AccessCode>()
                 .Where(item => item.Id == loginCode.Id)
                 .Update(loginCode);
 

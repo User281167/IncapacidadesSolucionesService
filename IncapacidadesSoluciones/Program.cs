@@ -74,7 +74,7 @@ builder.Services.AddScoped<AuthService>();
 // repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
-builder.Services.AddScoped<ILoginCodeRepository, LoginCodeRepository>();
+builder.Services.AddScoped<IAccessCodeRepository, AccessCodeRepository>();
 
 var app = builder.Build();
 

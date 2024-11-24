@@ -53,7 +53,7 @@ namespace IncapacidadesSoluciones.Controllers
             if (req == null)
                 return BadRequest("La información no puede ser nula.");
 
-            var res = await authService.UpdateLoginCode(req);
+            var res = await authService.UpdateAccessCode(req);
 
             if (!res.Success)
                 return BadRequest(res.Message);

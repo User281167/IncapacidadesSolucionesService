@@ -11,13 +11,13 @@ namespace IncapacidadesSoluciones.Services
     {
         private readonly IUserRepository userRepository;
         private readonly ICompanyRepository companyRepository;
-        private readonly ILoginCodeRepository loginCodeRepository;
+        private readonly IAccessCodeRepository accessCodeRepository;
 
-        public AuthService(IUserRepository userRepository, ICompanyRepository companyRepository, ILoginCodeRepository loginCodeRepository)
+        public AuthService(IUserRepository userRepository, ICompanyRepository companyRepository, IAccessCodeRepository loginCodeRepository)
         {
             this.userRepository = userRepository;
             this.companyRepository = companyRepository;
-            this.loginCodeRepository = loginCodeRepository;
+            this.accessCodeRepository = loginCodeRepository;
         }
 
         public async Task<AuthRes> RegisterCompany(AuthCompanyReq req)
@@ -83,7 +83,7 @@ namespace IncapacidadesSoluciones.Services
 
         public async Task<AuthRes> RegisterUser(AuthUserReq req, USER_ROLE role)
         {
-            var code = await loginCodeRepository.GetLoginCodeByCode(req.LoginCode);
+            var code = await accessCodeRepository.GetLoginCodeByCode(req.LoginCode);
 
             if (code == null)
                 return new AuthRes { ErrorMessage = "Código de acceso inválido" };
@@ -117,40 +117,40 @@ namespace IncapacidadesSoluciones.Services
             };
         }
 
-        public async Task<ApiRes<LoginCode>> CreateLoginCode(AuthLoginCodeReq req)
+        public async Task<ApiRes<AccessCode>> CreateAccessCode(AuthLoginCodeReq req)
         {
             var company = await companyRepository.GetCompany(req.CompanyId);
 
             if (company == null)
-                return new ApiRes<LoginCode> { Success = false, Message = "No se pudo encontrar la empresa." };
+                return new ApiRes<AccessCode> { Success = false, Message = "No se pudo encontrar la empresa." };
 
-            var code = new LoginCode
+            var code = new AccessCode
             {
                 NIT = company.Nit,
                 ExpirationDate = req.ExpirationDate,
-                Code = LoginCode.GenerateCode(company.Name)
+                Code = AccessCode.GenerateCode(company.Name)
             };
 
-            var res = await loginCodeRepository.Insert(code);
-            return new ApiRes<LoginCode> { Data = res, Success = true, Message = "Código de acceso generado con exito." };
+            var res = await accessCodeRepository.Insert(code);
+            return new ApiRes<AccessCode> { Data = res, Success = true, Message = "Código de acceso generado con exito." };
         }
 
-        public async Task<ApiRes<LoginCode>> UpdateLoginCode(AuthLoginCodeReq req)
+        public async Task<ApiRes<AccessCode>> UpdateAccessCode(AuthLoginCodeReq req)
         {
             var company = await companyRepository.GetCompany(req.CompanyId);
-            var code = await loginCodeRepository.GetLoginCodeById(req.Id);
+            var code = await accessCodeRepository.GetLoginCodeById(req.Id);
 
             if (company == null)
-                return new ApiRes<LoginCode> { Success = false, Message = "No se pudo encontrar la empresa." };
+                return new ApiRes<AccessCode> { Success = false, Message = "No se pudo encontrar la empresa." };
             else if (code == null)
-                return new ApiRes<LoginCode> { Success = false, Message = "No se pudo encontrar el código de acceso." };
+                return new ApiRes<AccessCode> { Success = false, Message = "No se pudo encontrar el código de acceso." };
 
             code.NIT = company.Nit;
             code.ExpirationDate = req.ExpirationDate;
-            code.Code = LoginCode.GenerateCode(company.Name);
+            code.Code = AccessCode.GenerateCode(company.Name);
 
-            var res = await loginCodeRepository.Update(code);
-            return new ApiRes<LoginCode> { Data = res, Success = true, Message = "Código de acceso actualizado con exito." };
+            var res = await accessCodeRepository.Update(code);
+            return new ApiRes<AccessCode> { Data = res, Success = true, Message = "Código de acceso actualizado con exito." };
         }
     }
 }

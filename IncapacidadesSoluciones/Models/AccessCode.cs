@@ -6,8 +6,8 @@ using PrimaryKey = Supabase.Postgrest.Attributes.PrimaryKeyAttribute;
 
 namespace IncapacidadesSoluciones.Models
 {
-    [Table("login_codes")]
-    public class LoginCode : BaseModel
+    [Table("access_codes")]
+    public class AccessCode : BaseModel
     {
         [PrimaryKey("id")]
         public Guid Id { get; set; }
