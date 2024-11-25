@@ -1,6 +1,7 @@
-﻿using IncapacidadesSoluciones.Dto.auth;
+﻿using IncapacidadesSoluciones.Repositories;
+using IncapacidadesSoluciones.Dto;
 using IncapacidadesSoluciones.Models;
-using IncapacidadesSoluciones.Repositories;
+using IncapacidadesSoluciones.Dto.UserDto;
 
 namespace IncapacidadesSoluciones.Services
 {
@@ -13,14 +14,33 @@ namespace IncapacidadesSoluciones.Services
             this.userRepository = userRepository;
         }
 
-        public async Task<User> CreateUser(CreateUserReq userclient)
+        public async Task<ApiRes<User>> UpdateUser(UserReq user)
         {
-            var newUser = User.FromDto(userclient);
+            if (user == null)
+                return new ApiRes<User>() { Success=false, Message="Información no válida." };
 
-            if (await userRepository.UserExists(newUser.Email, newUser.Cedula))
-                return null;
+            var newUser = await userRepository.GetById(user.Id);
 
-            return newUser;
+            if (newUser == null)
+                return new ApiRes<User>() { Success = false, Message = "No se encuentra el usuario por el ID dado." };
+            else if (newUser.Cedula != user.Cedula && await userRepository.UserExists("", user.Cedula))
+                return new ApiRes<User>() { Success = false, Message = "Credenciales incorrectas, verifique que la cédula sea unica." };
+
+            newUser.Name = user.Name;
+            newUser.LastName = user.LastName;
+            newUser.Cedula = user.Cedula;
+            newUser.Phone = user.Phone;
+
+            var res = await userRepository.Update(newUser);
+            
+            if (res == null)
+                return new ApiRes<User>() { Success = false, Message = "Error al actualizar el usuario." };
+
+            return new ApiRes<User>()
+            {
+                Success = true,
+                Data = res
+            };
         }
     }
 }

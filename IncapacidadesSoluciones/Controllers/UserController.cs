@@ -1,4 +1,7 @@
-﻿using IncapacidadesSoluciones.Dto.auth;
+﻿using IncapacidadesSoluciones.Dto;
+using IncapacidadesSoluciones.Dto.auth;
+using IncapacidadesSoluciones.Dto.UserDto;
+using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,18 +19,18 @@ namespace IncapacidadesSoluciones.Controllers
             this.userService = userService;
         }
 
-        [HttpPost, Authorize(Roles="LIDER")]
-        public async Task<IActionResult> PostUser(CreateUserReq newUser)
+        [HttpPut("update"), Authorize]
+        public async Task<IActionResult> UpdateUserInfo(UserReq user)
         {
-            if (newUser == null)
-                return BadRequest("El usuario no puede ser nulo");
+            if (user == null)
+                return BadRequest("La información no puede ser nula.");
 
-            var createdUser = await userService.CreateUser(newUser);
+            var res = await userService.UpdateUser(user);
 
-            if (createdUser == null)
-                return Problem("El usuario no pudo ser creado");
+            if (!res.Success)
+                return BadRequest(res.Message);
 
-            return Ok(createdUser);
+            return Ok(res);
         }
     }
 }

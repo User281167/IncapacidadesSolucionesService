@@ -31,6 +31,16 @@ namespace IncapacidadesSoluciones.Repositories
             return user;
         }
 
+        public async Task<User> GetById(Guid id)
+        {
+            var user = await client
+                    .From<User>()
+                    .Where(u => u.Id == id)
+                    .Single();
+
+            return user;
+        }
+
         public async Task<User> SignUp(string email, string password)
         {
             var session = await client.Auth.SignUp(email, password);
