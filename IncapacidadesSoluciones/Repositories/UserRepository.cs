@@ -21,6 +21,11 @@ namespace IncapacidadesSoluciones.Repositories
             return res != null;
         }
 
+        public async Task<Boolean> UserExists(Guid id)
+        {
+            return await GetById(id) != null;
+        }
+
         public async Task<User> GetUserByEmail(string email)
         {
             var user = await client

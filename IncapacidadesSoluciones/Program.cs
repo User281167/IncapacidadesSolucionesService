@@ -70,11 +70,13 @@ builder.Services.AddScoped<Supabase.Client>(_ =>
 // services
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<InabilityService>();
 
 // repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<IAccessCodeRepository, AccessCodeRepository>();
+builder.Services.AddScoped<IInabilityRepository, InabilityRepository>();
 
 var app = builder.Build();
 
