@@ -48,5 +48,27 @@ namespace TestIncapacidadesSoluciones
             var res = await inabilityController.AddInability(new InabilityReq());
             Assert.IsType<OkObjectResult>(res);
         }
+
+        [Fact]
+        public async void Inability_GetList_Error()
+        {
+            userRepository.Setup(repo => repo.UserExists(It.IsAny<Guid>())).ReturnsAsync(true);
+
+            var res = await inabilityController.GetAllByUser(new Guid());
+            Assert.IsType<BadRequestObjectResult>(res);
+        }
+
+        [Fact]
+        public async void Inability_GetList_Ok()
+        {
+            userRepository.Setup(repo => repo.UserExists(It.IsAny<Guid>())).ReturnsAsync(true);
+            inabilityRepository.Setup(repo => repo.GetUserInabilities(It.IsAny<Guid>())).ReturnsAsync(new List<Inability>());
+
+            var res = await inabilityController.GetAllByUser(new Guid());
+            var ok = Assert.IsType<OkObjectResult>(res);
+
+            var apiRes = ok.Value as ApiRes<List<Inability>>;
+            Assert.Equal(apiRes.Data.Count, 0);
+        }
     }
 }

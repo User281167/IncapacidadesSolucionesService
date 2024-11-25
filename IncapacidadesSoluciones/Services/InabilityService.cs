@@ -44,5 +44,18 @@ namespace IncapacidadesSoluciones.Services
                 Data = res
             };
         }
+
+        public async Task<ApiRes<List<Inability>>> GetAllFromUser(Guid id)
+        {
+            if (!await userRepository.UserExists(id))
+                return new ApiRes<List<Inability>>() { Success = false, Message = "No se encuentra el colaborador por el ID dado." };
+
+            var res = await inabilityRepository.GetUserInabilities(id);
+
+            if (res == null)
+                return new ApiRes<List<Inability>>() { Success = false, Message = "Error al obtener los datos." };
+
+            return new ApiRes<List<Inability>>() { Success = true, Data = res };
+        }
     }
 }

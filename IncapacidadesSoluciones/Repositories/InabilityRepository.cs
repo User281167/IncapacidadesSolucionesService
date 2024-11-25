@@ -21,5 +21,16 @@ namespace IncapacidadesSoluciones.Repositories
 
             return res.Models.First();
         }
+
+        public async Task<List<Inability>> GetUserInabilities(Guid id)
+        {
+            var res = await client
+                .From<Inability>()
+                .Where(i => i.IdCollaborator == id)
+                .Get();
+
+            return res.Models;
+        }
+
     }
 }
