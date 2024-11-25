@@ -25,11 +25,20 @@ namespace IncapacidadesSoluciones.Controllers
             if (user == null)
                 return BadRequest("La información no puede ser nula.");
 
-            var res = await userService.UpdateUser(user);
+            ApiRes<User> res;
 
-            if (!res.Success)
-                return BadRequest(res.Message);
+            try
+            {
+                res = await userService.UpdateUser(user);
 
+                if (!res.Success)
+                    return BadRequest(res.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Error al procesar petición. " + ex.Message);  
+            }
+            
             return Ok(res);
         }
     }
