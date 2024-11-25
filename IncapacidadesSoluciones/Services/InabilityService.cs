@@ -23,7 +23,7 @@ namespace IncapacidadesSoluciones.Services
             else if (!await userRepository.UserExists(req.IdCollaborator))
                 return new ApiRes<Inability>() { Success = false, Message = "No se encuentra el colaborador por el ID dado." };
 
-            Inability inability = new Inability()
+            var inability = new Inability()
             {
                 IdCollaborator = req.IdCollaborator,
                 Description = req.Description,
