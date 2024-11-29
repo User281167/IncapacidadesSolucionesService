@@ -74,5 +74,11 @@ namespace IncapacidadesSoluciones.Controllers
 
             return Ok(res);
         }
+
+        [HttpGet("validate-token")]
+        public IActionResult ValidateToken([FromQuery] string token)
+        {
+            return Ok(authService.ValidateToken(token));
+        }
     }
 }

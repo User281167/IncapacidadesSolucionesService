@@ -30,5 +30,32 @@ namespace IncapacidadesSoluciones.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        public static bool ValidateToken(string token)
+        {
+            var secret = Environment.GetEnvironmentVariable("JWT_KEY");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+
+            var handler = new JwtSecurityTokenHandler();
+
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = key,
+                ValidateIssuer = false,
+                ValidateAudience = false
+            };
+
+            try
+            {
+                handler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
     }
 }

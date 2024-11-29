@@ -182,5 +182,10 @@ namespace IncapacidadesSoluciones.Services
                 Token = JWT.CreateToken(user, role)
             };
         }
+
+        public bool ValidateToken(string token)
+        {
+            return JWT.ValidateToken(token);
+        }
     }
 }
