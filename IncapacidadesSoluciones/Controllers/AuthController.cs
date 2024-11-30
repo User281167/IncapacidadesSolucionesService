@@ -102,18 +102,16 @@ namespace IncapacidadesSoluciones.Controllers
 
             try
             {
-                var res = await authService.CreateRole(req);
-
-                if (!res.Success)
-                    return BadRequest(res);
-
-                return Ok(res);
-            } catch (Exception ex)
+                ApiRes<User> res = await authService.CreateRole(req);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
             {
                 return StatusCode(
-                    500, 
-                    new ApiRes<User> { 
-                        Message = "Error interno al procesar la petición." + ex.Message
+                    500,
+                    new ApiRes<User>
+                    {
+                        Message = "Error interno al procesar la petición."
                     }
                 );
             }
