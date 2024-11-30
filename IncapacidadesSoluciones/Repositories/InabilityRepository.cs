@@ -32,7 +32,7 @@ namespace IncapacidadesSoluciones.Repositories
             return res.Models;
         }
 
-        public async Task<List<Inability>> GetNotAccepted(string nit)
+        public async Task<List<Inability>> GetNoAccepted(string nit)
         {
             var users = await client
                 .From<User>()

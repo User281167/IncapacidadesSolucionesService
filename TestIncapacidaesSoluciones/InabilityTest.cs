@@ -25,7 +25,8 @@ namespace TestIncapacidadesSoluciones
         }
 
         [Fact]
-        public async void Inability_Req_Null() {
+        public async void Inability_Req_Null()
+        {
             var res = await inabilityController.AddInability(null);
             Assert.IsType<BadRequestObjectResult>(res);
         }
@@ -62,13 +63,45 @@ namespace TestIncapacidadesSoluciones
         public async void Inability_GetList_Ok()
         {
             userRepository.Setup(repo => repo.UserExists(It.IsAny<Guid>())).ReturnsAsync(true);
-            inabilityRepository.Setup(repo => repo.GetUserInabilities(It.IsAny<Guid>())).ReturnsAsync(new List<Inability>());
+            inabilityRepository.Setup(
+                repo => repo.GetUserInabilities(It.IsAny<Guid>()))
+                .ReturnsAsync(new List<Inability>(new Inability[] { new Inability() })
+            );
 
             var res = await inabilityController.GetAllByUser(new Guid());
             var ok = Assert.IsType<OkObjectResult>(res);
 
             var apiRes = ok.Value as ApiRes<List<Inability>>;
-            Assert.Equal(apiRes.Data.Count, 0);
+            Assert.NotNull(apiRes);
+            Assert.True(apiRes.Success);
+            Assert.NotNull(apiRes.Data);
+            Assert.NotEmpty(apiRes.Data);
+        }
+
+        [Fact]
+        public async void Inability_GetNoAccepted_Error()
+        {
+            var res = await inabilityController.GetNoAccepted(new Guid());
+            Assert.IsType<BadRequestObjectResult>(res);
+        }
+
+        [Fact]
+        public async void Inability_GetNoAccepted_Ok()
+        {
+            userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(new User());
+            inabilityRepository.Setup(
+                repo => repo.GetNoAccepted(It.IsAny<string>()))
+                .ReturnsAsync(new List<Inability>(new Inability[] { new Inability() })
+            );
+
+            var res = await inabilityController.GetNoAccepted(new Guid());
+            var ok = Assert.IsType<OkObjectResult>(res);
+
+            var apiRes = ok.Value as ApiRes<List<Inability>>;
+            Assert.NotNull(apiRes);
+            Assert.True(apiRes.Success);
+            Assert.NotNull(apiRes.Data);
+            Assert.NotEmpty(apiRes.Data);
         }
     }
 }

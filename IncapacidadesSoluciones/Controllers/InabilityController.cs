@@ -53,7 +53,7 @@ namespace IncapacidadesSoluciones.Controllers
         }
 
         [HttpGet("no-accepted"), Authorize(Roles = "RECEPCIONISTA")]
-        public async Task<IActionResult> GetNotAccepted([FromQuery] Guid receptionistId)
+        public async Task<IActionResult> GetNoAccepted([FromQuery] Guid receptionistId)
         {
             try
             {

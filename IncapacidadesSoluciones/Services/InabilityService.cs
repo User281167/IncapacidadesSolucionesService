@@ -63,13 +63,13 @@ namespace IncapacidadesSoluciones.Services
             var receptionist = await userRepository.GetById(receptionistId);
 
             if (receptionist == null)
-                return new ApiRes<List<Inability>>() { Success = false, Message = "No se encuentra el usuario por el ID dado." };
+                return new ApiRes<List<Inability>>() { Message = "No se encuentra el usuario por el ID dado." };
 
             var nit = receptionist.CompanyNIT;
-            var res = await inabilityRepository.GetNotAccepted(nit);
+            var res = await inabilityRepository.GetNoAccepted(nit);
 
             if (res == null)
-                return new ApiRes<List<Inability>>() { Success = false, Message = "Error al obtener los datos." };
+                return new ApiRes<List<Inability>>() { Message = "Error al obtener los datos." };
 
             return new ApiRes<List<Inability>>() { Success = true, Data = res };
         }
