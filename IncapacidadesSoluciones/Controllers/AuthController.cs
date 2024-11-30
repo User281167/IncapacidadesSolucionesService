@@ -1,4 +1,6 @@
-﻿using IncapacidadesSoluciones.Dto.auth;
+﻿using IncapacidadesSoluciones.Dto;
+using IncapacidadesSoluciones.Dto.auth;
+using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Services;
 using IncapacidadesSoluciones.Utilities.Role;
 using Microsoft.AspNetCore.Authorization;
@@ -61,7 +63,7 @@ namespace IncapacidadesSoluciones.Controllers
             return Ok(res);
         }
 
-        [HttpPost("login"), AllowAnonymous]
+        [HttpPost("login")]
         public async Task<IActionResult> Login(AuthLoginReq req)
         {
             if (req == null)
@@ -79,6 +81,42 @@ namespace IncapacidadesSoluciones.Controllers
         public IActionResult ValidateToken([FromQuery] string token)
         {
             return Ok(authService.ValidateToken(token));
+        }
+
+        [HttpPost("create-role"), Authorize(Roles = "LIDER")]
+        public async Task<IActionResult> CreateRole(AuthRoleReq req)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(new ApiRes<List<string>>
+                {
+                    Message = "Error de validación de datos.",
+                    Data = errors
+                });
+            }
+
+            try
+            {
+                var res = await authService.CreateRole(req);
+
+                if (!res.Success)
+                    return BadRequest(res);
+
+                return Ok(res);
+            } catch (Exception ex)
+            {
+                return StatusCode(
+                    500, 
+                    new ApiRes<User> { 
+                        Message = "Error interno al procesar la petición." + ex.Message
+                    }
+                );
+            }
         }
     }
 }

@@ -12,6 +12,7 @@
                 {USER_ROLE.DOCUMENTAL_MANAGEMENT, "GESTION_DOCUMENTAL"},
                 {USER_ROLE.LEGAL_PORTFORT, "CARTERA_JURIDICA"},
                 {USER_ROLE.ACCOUNTING , "CONTABILIDAD"},
+                {USER_ROLE.NOT_FOUND , "NOT_FOUND"},
             };
 
         public static string GetRoleName(USER_ROLE role)
@@ -21,7 +22,11 @@
 
         public static USER_ROLE GetRole(string roleName)
         {
-            var item= roles.SingleOrDefault(r => r.Value == roleName.ToUpper());
+            var item = roles.SingleOrDefault(
+                r => r.Value == roleName.ToUpper(), 
+                new KeyValuePair<USER_ROLE, string>(USER_ROLE.NOT_FOUND, "")
+                );
+
             return item.Key;
         }
     }

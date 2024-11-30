@@ -9,6 +9,7 @@
         COLLABORATOR,
         DOCUMENTAL_MANAGEMENT,
         LEGAL_PORTFORT,
-        ACCOUNTING
+        ACCOUNTING,
+        NOT_FOUND
     }
 }

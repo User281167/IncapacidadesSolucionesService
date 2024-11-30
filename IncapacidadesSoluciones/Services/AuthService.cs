@@ -187,5 +187,48 @@ namespace IncapacidadesSoluciones.Services
         {
             return JWT.ValidateToken(token);
         }
+
+        public async Task<ApiRes<User>> CreateRole(AuthRoleReq req)
+        {
+            USER_ROLE role = UserRoleFactory.GetRole(req.Role);
+
+            if (role == USER_ROLE.NOT_FOUND)
+                return new ApiRes<User> { Message = $"No se puede crear un usuario con credenciales de {req.Role}." };
+            else if (role == USER_ROLE.LEADER)
+                return new ApiRes<User> { Message = "No se puede crear un usuario con credenciales de LIDER." };
+            
+            // check leader and get company nit
+            var leader = await userRepository.GetById(req.leaderId);
+
+            if (leader == null)
+                return new ApiRes<User> { Message = "Compruebe que tengas las credenciales necesarias para asignar roles." };
+            else if (await userRepository.UserExists(req.Email, req.Cedula))
+                return new ApiRes<User> { Message = "Ya existe un usuario con ese correo o cédula registrado." };
+
+            var user = await userRepository.SignUp(req.Email, req.Password);
+
+            if (user == null)
+                return new ApiRes<User> { Message = "Error al registrar el usuario" };
+
+            user.Name = req.Name;
+            user.LastName = req.LastName;
+            user.Email = req.Email;
+            user.Cedula = req.Cedula;
+            user.Phone = req.Phone;
+            user.Role = UserRoleFactory.GetRoleName(role);
+            user.CompanyNIT = leader.CompanyNIT;
+
+            var res = await userRepository.Update(user);
+
+            if (user == null)
+                return new ApiRes<User> { Message = "Error al registrar el usuario" };
+
+            return new ApiRes<User>
+            {
+                Success = true,
+                Message = "Usuario creado con éxito.",
+                Data = res
+            };
+        }
     }
 }
