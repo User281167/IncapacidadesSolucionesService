@@ -155,7 +155,7 @@ namespace IncapacidadesSoluciones.Services
             var res = await accessCodeRepository.Update(code);
             return new ApiRes<AccessCode> { Data = res, Success = true, Message = "Código de acceso actualizado con exito." };
         }
-   
+
         public async Task<AuthRes> Login(AuthLoginReq req)
         {
             User user;
@@ -163,7 +163,8 @@ namespace IncapacidadesSoluciones.Services
             try
             {
                 user = await userRepository.SignIn(req.Email, req.Password);
-            } catch (Supabase.Gotrue.Exceptions.GotrueException ex)
+            }
+            catch (Supabase.Gotrue.Exceptions.GotrueException ex)
             {
                 if (ex.StatusCode == 400)
                     return new AuthRes { ErrorMessage = "Credenciales incorrectas." };
@@ -182,7 +183,6 @@ namespace IncapacidadesSoluciones.Services
                 Token = JWT.CreateToken(user, role)
             };
         }
-
         public bool ValidateToken(string token)
         {
             return JWT.ValidateToken(token);
@@ -196,7 +196,9 @@ namespace IncapacidadesSoluciones.Services
                 return new ApiRes<User> { Message = $"No se puede crear un usuario con credenciales de {req.Role}." };
             else if (role == USER_ROLE.LEADER)
                 return new ApiRes<User> { Message = "No se puede crear un usuario con credenciales de LIDER." };
-            
+            else if (role == USER_ROLE.COLLABORATOR)
+                return new ApiRes<User> { Message = "No se puede crear un usuario con credenciales de COLABORADOR." };
+
             // check leader and get company nit
             var leader = await userRepository.GetById(req.leaderId);
 
