@@ -57,5 +57,21 @@ namespace IncapacidadesSoluciones.Services
 
             return new ApiRes<List<Inability>>() { Success = true, Data = res };
         }
+
+        public async Task<ApiRes<List<Inability>>> GetNoAccepted(Guid receptionistId)
+        {
+            var receptionist = await userRepository.GetById(receptionistId);
+
+            if (receptionist == null)
+                return new ApiRes<List<Inability>>() { Success = false, Message = "No se encuentra el usuario por el ID dado." };
+
+            var nit = receptionist.CompanyNIT;
+            var res = await inabilityRepository.GetNotAccepted(nit);
+
+            if (res == null)
+                return new ApiRes<List<Inability>>() { Success = false, Message = "Error al obtener los datos." };
+
+            return new ApiRes<List<Inability>>() { Success = true, Data = res };
+        }
     }
 }
