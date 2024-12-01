@@ -47,5 +47,14 @@ namespace IncapacidadesSoluciones.Repositories
 
             return res.Models.First();
         }
+
+        public async Task<Company> Update(Company company)
+        {
+            var res = await client
+                .From<Company>()
+                .Update(company);
+
+            return res.Models.First();
+        }
     }
 }

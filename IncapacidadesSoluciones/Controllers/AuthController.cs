@@ -1,5 +1,6 @@
 ﻿using IncapacidadesSoluciones.Dto;
 using IncapacidadesSoluciones.Dto.auth;
+using IncapacidadesSoluciones.Dto.Company;
 using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Services;
 using IncapacidadesSoluciones.Utilities.Role;
@@ -32,6 +33,23 @@ namespace IncapacidadesSoluciones.Controllers
                 return BadRequest(res.ErrorMessage);
 
             return Ok(res);
+        }
+
+        [HttpPut("update-company"), Authorize(Roles = "LIDER")]
+        public async Task<IActionResult> UpdateCompany([FromQuery] Guid leaderId, CompanyReq req)
+        {
+            try
+            {
+                var res = await authService.UpdateCompany(leaderId, req);
+                return string.IsNullOrEmpty(res) ? Ok() : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    "Error interno al procesar la petición."
+                );
+            }
         }
 
         [HttpPost("signup-user")]

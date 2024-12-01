@@ -1,5 +1,6 @@
 ﻿using IncapacidadesSoluciones.Dto;
 using IncapacidadesSoluciones.Dto.auth;
+using IncapacidadesSoluciones.Dto.Company;
 using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Repositories;
 using IncapacidadesSoluciones.Utilities.Company;
@@ -79,6 +80,44 @@ namespace IncapacidadesSoluciones.Services
                     ErrorMessage = "Error interno al registrar el usuario y compañia " + ex
                 };
             }
+        }
+
+        public async Task<string> UpdateCompany(Guid leaderId, CompanyReq req)
+        {
+            if (!CompanyTypeFactory.IsValid(req.Type))
+                return "Tipo de empresa inválido.";
+            else if (!CompanySectorFactory.IsValid(req.Sector))
+                return "Sector de la empresa inválido.";
+            else if (req.Id == Guid.Empty)
+                return "Id de la empresa no puede ser vacío.";
+
+            var leader = await userRepository.GetById(leaderId);
+
+            if (leader == null)
+                return "No se pudo encontrar el líder.";
+            else if (leader.Role != UserRoleFactory.GetRoleName(USER_ROLE.LEADER))
+                return "No se puede actualizar la empresa.";
+
+            var company = await companyRepository.GetCompany(req.Id);
+
+            if (company == null)
+                return "No se pudo encontrar la empresa.";
+            else if (company.LeaderId != leaderId)
+                return "No se puede actualizar la empresa no tienes permisos para hacerlo.";
+            else if (company.Nit != req.Nit && await companyRepository.CompanyExists(req.Nit))
+                return "Ya existe una empresa con ese nit registrado.";
+
+            company.Name = req.Name;
+            company.Description = req.Description;
+            company.Email = req.Email;
+            company.Founded = req.Founded;
+            company.Address = req.Address;
+            company.Type = req.Type.ToLower();
+            company.Sector = req.Sector.ToLower();
+            company.Nit = req.Nit;
+
+            var res = await companyRepository.Update(company);
+            return res == null ? "Error al actualizar la empresa." : "";
         }
 
         public async Task<AuthRes> RegisterUser(AuthUserReq req, USER_ROLE role)

@@ -17,7 +17,7 @@ namespace IncapacidadesSoluciones.Models
 
         [@Column("nit")]
         public string Nit { get; set; }
-        
+
         [@Column("nombre")]
         public string Name { get; set; }
 
@@ -28,7 +28,7 @@ namespace IncapacidadesSoluciones.Models
         public string Email { get; set; }
 
         [@Column("creacion")]
-        public DateOnly ?Founded { get; set; }
+        public DateOnly? Founded { get; set; }
 
         [@Column("direccion")]
         public string Address { get; set; }

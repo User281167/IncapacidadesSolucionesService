@@ -8,5 +8,6 @@ namespace IncapacidadesSoluciones.Repositories
         Task<Company> Insert(Company company);
         Task<Company> GetCompanyByNit(string nit);
         Task<Company> GetCompany(Guid id);
+        Task<Company> Update(Company company);
     }
 }
