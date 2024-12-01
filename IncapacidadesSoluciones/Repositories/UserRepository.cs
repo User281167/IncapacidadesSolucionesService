@@ -1,4 +1,5 @@
 ﻿using IncapacidadesSoluciones.Models;
+using Operator = Supabase.Postgrest.Constants.Operator;
 
 namespace IncapacidadesSoluciones.Repositories
 {
@@ -52,11 +53,10 @@ namespace IncapacidadesSoluciones.Repositories
 
             if (session == null)
                 return null;
-            if (session.User == null)
+            else if (session.User == null)
                 return null;
 
-            var user = await GetUserByEmail(session.User.Email);
-            return user;
+            return await GetUserByEmail(session.User.Email);
         }
 
         public async Task<User> Update(User user)
@@ -66,7 +66,7 @@ namespace IncapacidadesSoluciones.Repositories
                     .Where(u => u.Email == user.Email)
                     .Update(user);
 
-            return res.Models.First();
+            return res.Models.FirstOrDefault();
         }
 
         public async Task<User> SignIn(string email, string password)
@@ -86,7 +86,7 @@ namespace IncapacidadesSoluciones.Repositories
                 .Where(c => c.Id == id)
                 .Get();
 
-            return res.Models.First();
+            return res.Models.FirstOrDefault();
         }
 
         public async Task<Collaborator> UpdateCollaborator(Collaborator collaborator)
@@ -96,7 +96,7 @@ namespace IncapacidadesSoluciones.Repositories
                 .Where(c => c.Id == collaborator.Id)
                 .Update(collaborator);
 
-            return res.Models.First();
+            return res.Models.FirstOrDefault();
         }
     }
 }

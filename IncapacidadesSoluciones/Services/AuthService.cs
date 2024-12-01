@@ -214,7 +214,7 @@ namespace IncapacidadesSoluciones.Services
 
             user.Name = req.Name;
             user.LastName = req.LastName;
-            user.Email = req.Email;
+            user.Email = req.Email.ToLower();
             user.Cedula = req.Cedula;
             user.Phone = req.Phone;
             user.Role = UserRoleFactory.GetRoleName(role);
@@ -222,8 +222,8 @@ namespace IncapacidadesSoluciones.Services
 
             var res = await userRepository.Update(user);
 
-            if (user == null)
-                return new ApiRes<User> { Message = "Error al registrar el usuario" };
+            if (res == null)
+                return new ApiRes<User> { Message = "Error al registrar y actualizar el usuario" };
 
             return new ApiRes<User>
             {

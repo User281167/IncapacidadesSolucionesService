@@ -7,10 +7,10 @@ namespace IncapacidadesSoluciones.Dto.auth
         //[Required(ErrorMessage = "El campo {0} es requerido")]
         public string AccessCode { get; set; }
 
-        [Required(ErrorMessage = "El campo {0} es requerido y debe comenzar con una letra"), MinLength(3), MaxLength(50), RegularExpression(@"^[a-zA-Z ]+$")]
+        [Required(ErrorMessage = "El campo {0} es requerido y debe comenzar con una letra"), MinLength(3), MaxLength(50)]
         public string Name { get; set; }
 
-        [Required(ErrorMessage = "El campo {0} es requerido y debe comenzar con una letra"), MinLength(3), MaxLength(50), RegularExpression(@"^[a-zA-Z ]+$")]
+        [Required(ErrorMessage = "El campo {0} es requerido y debe comenzar con una letra"), MinLength(3), MaxLength(50)]
         public string LastName { get; set; }
 
         [Required, MinLength(5), MaxLength(12)]

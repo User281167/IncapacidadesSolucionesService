@@ -8,7 +8,7 @@
         LEADER,
         COLLABORATOR,
         DOCUMENTAL_MANAGEMENT,
-        LEGAL_PORTFORT,
+        LEGAL_PORTFOLIO,
         ACCOUNTING,
         NOT_FOUND
     }
