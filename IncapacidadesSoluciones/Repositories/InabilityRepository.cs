@@ -1,6 +1,7 @@
 ﻿using IncapacidadesSoluciones.Models;
 using QueryOptions = Supabase.Postgrest.QueryOptions;
 using Operator = Supabase.Postgrest.Constants.Operator;
+using IncapacidadesSoluciones.Utilities;
 
 namespace IncapacidadesSoluciones.Repositories
 {
@@ -36,6 +37,7 @@ namespace IncapacidadesSoluciones.Repositories
         {
             var users = await client
                 .From<User>()
+                .Select("id")
                 .Where(item => item.CompanyNIT == nit)
                 .Get();
 
@@ -44,10 +46,30 @@ namespace IncapacidadesSoluciones.Repositories
             var res = await client
                 .From<Inability>()
                 .Filter("id_collaborator", Operator.In, ids)
-                .Where(item => item.Accepted == false && item.Discharged == false)
+                .Filter("state", Operator.Equals, InabilityStateFactory.GetState(INABILITY_STATE.PENDING))
                 .Get();
 
             return res.Models;
+        }
+
+        public async Task<Inability> GetById(Guid id)
+        {
+            var res = await client
+                .From<Inability>()
+                .Where(i => i.Id == id)
+                .Get();
+
+            return res.Models.FirstOrDefault();
+        }
+
+        public async Task<Inability> Update(Inability inability)
+        {
+            var res = await client
+                .From<Inability>()
+                .Where(i => i.Id == inability.Id)
+                .Update(inability);
+
+            return res.Models.First();
         }
     }
 }

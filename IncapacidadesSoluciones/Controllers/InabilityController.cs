@@ -2,6 +2,7 @@
 using IncapacidadesSoluciones.Dto.Inability;
 using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Services;
+using IncapacidadesSoluciones.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -65,6 +66,106 @@ namespace IncapacidadesSoluciones.Controllers
                 return StatusCode(
                     500,
                     new ApiRes<List<Inability>>
+                    {
+                        Message = "Error interno al procesar la solicitud" + ex.Message
+                    }
+                );
+            }
+        }
+
+        [HttpPut("accept"), Authorize(Roles = "RECEPCIONISTA")]
+        public async Task<IActionResult> AcceptInability([FromQuery] Guid id)
+        {
+            try
+            {
+                var res = await InabilityService.UpdateStateInability(id, INABILITY_STATE.ACCEPTED);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new ApiRes<Inability>
+                    {
+                        Message = "Error interno al procesar la solicitud" + ex.Message
+                    }
+                );
+            }
+        }
+
+        [HttpPut("discharge"), Authorize(Roles = "RECEPCIONISTA")]
+        public async Task<IActionResult> DischargeInability([FromQuery] Guid id)
+        {
+            try
+            {
+                var res = await InabilityService.UpdateStateInability(id, INABILITY_STATE.DISCHARGED);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new ApiRes<Inability>
+                    {
+                        Message = "Error interno al procesar la solicitud" + ex.Message
+                    }
+                );
+            }
+        }
+
+        [HttpPut("finish"), Authorize(Roles = "AUXILIAR")]
+        public async Task<IActionResult> FinishInability([FromQuery] Guid id)
+        {
+            try
+            {
+                var res = await InabilityService.UpdateStateInability(id, INABILITY_STATE.FINISHED);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new ApiRes<Inability>
+                    {
+                        Message = "Error interno al procesar la solicitud" + ex.Message
+                    }
+                );
+            }
+        }
+
+        [HttpPut("terminate"), Authorize(Roles = "AUXILIAR")]
+        public async Task<IActionResult> TerminateInability([FromQuery] Guid id)
+        {
+            try
+            {
+                var res = await InabilityService.UpdateStateInability(id, INABILITY_STATE.TERMINATED);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new ApiRes<Inability>
+                    {
+                        Message = "Error interno al procesar la solicitud" + ex.Message
+                    }
+                );
+            }
+        }
+
+        [HttpPut("advise"), Authorize(Roles = "ASESOR")]
+        public async Task<IActionResult> AdviseInability([FromQuery] Guid id, [FromQuery] bool isAdvice)
+        {
+            try
+            {
+                var res = await InabilityService.UpdateAdvice(id, isAdvice);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new ApiRes<Inability>
                     {
                         Message = "Error interno al procesar la solicitud" + ex.Message
                     }

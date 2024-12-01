@@ -7,16 +7,16 @@ using PrimaryKey = Supabase.Postgrest.Attributes.PrimaryKeyAttribute;
 namespace IncapacidadesSoluciones.Models
 {
     [Table("inabilities")]
-    public class Inability: BaseModel
+    public class Inability : BaseModel
     {
-        [PrimaryKey("Id", false)]
+        [PrimaryKey("id")]
         public Guid Id { get; set; }
 
         [Column("id_collaborator")]
         public Guid IdCollaborator { get; set; }
 
         [Column("id_replacement")]
-        public Guid ?IdReplacement { get; set; }
+        public Guid? IdReplacement { get; set; }
 
         [Column("type")]
         public string Type { get; set; }
@@ -42,14 +42,8 @@ namespace IncapacidadesSoluciones.Models
         [Column("health_entity_payment")]
         public ulong HealthEntityPayment { get; set; }
 
-        [Column("accepted")]
-        public bool Accepted { get; set; }
-
-        [Column("finished")]
-        public bool Finished {  get; set; }
-
-        [Column("discharged")]
-        public bool Discharged { get; set; }
+        [Column("state")]
+        public string State { get; set; }
 
         [Column("advise")]
         public bool Advise { get; set; }

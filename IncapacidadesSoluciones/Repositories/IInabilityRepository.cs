@@ -7,5 +7,7 @@ namespace IncapacidadesSoluciones.Repositories
         Task<Inability> Insert(Inability inability);
         Task<List<Inability>> GetUserInabilities(Guid id);
         Task<List<Inability>> GetNoAccepted(string nit);
+        Task<Inability> GetById(Guid id);
+        Task<Inability> Update(Inability inability);
     }
 }
