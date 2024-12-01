@@ -111,7 +111,7 @@ namespace IncapacidadesSoluciones.Controllers
                     500,
                     new ApiRes<User>
                     {
-                        Message = "Error interno al procesar la petición." + ex.Message
+                        Message = "Error interno al procesar la petición."
                     }
                 );
             }

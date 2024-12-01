@@ -67,7 +67,7 @@ namespace IncapacidadesSoluciones.Controllers
                     500,
                     new ApiRes<List<Inability>>
                     {
-                        Message = "Error interno al procesar la solicitud" + ex.Message
+                        Message = "Error interno al procesar la solicitud"
                     }
                 );
             }
@@ -87,7 +87,7 @@ namespace IncapacidadesSoluciones.Controllers
                     500,
                     new ApiRes<Inability>
                     {
-                        Message = "Error interno al procesar la solicitud" + ex.Message
+                        Message = "Error interno al procesar la solicitud"
                     }
                 );
             }
@@ -107,7 +107,7 @@ namespace IncapacidadesSoluciones.Controllers
                     500,
                     new ApiRes<Inability>
                     {
-                        Message = "Error interno al procesar la solicitud" + ex.Message
+                        Message = "Error interno al procesar la solicitud"
                     }
                 );
             }
@@ -127,7 +127,7 @@ namespace IncapacidadesSoluciones.Controllers
                     500,
                     new ApiRes<Inability>
                     {
-                        Message = "Error interno al procesar la solicitud" + ex.Message
+                        Message = "Error interno al procesar la solicitud"
                     }
                 );
             }
@@ -147,7 +147,7 @@ namespace IncapacidadesSoluciones.Controllers
                     500,
                     new ApiRes<Inability>
                     {
-                        Message = "Error interno al procesar la solicitud" + ex.Message
+                        Message = "Error interno al procesar la solicitud"
                     }
                 );
             }
@@ -167,7 +167,7 @@ namespace IncapacidadesSoluciones.Controllers
                     500,
                     new ApiRes<Inability>
                     {
-                        Message = "Error interno al procesar la solicitud" + ex.Message
+                        Message = "Error interno al procesar la solicitud"
                     }
                 );
             }
