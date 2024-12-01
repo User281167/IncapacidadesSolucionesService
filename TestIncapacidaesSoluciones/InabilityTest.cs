@@ -6,6 +6,7 @@ using Moq;
 using IncapacidadesSoluciones.Dto.Inability;
 using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Dto;
+using IncapacidadesSoluciones.Utilities;
 
 namespace TestIncapacidadesSoluciones
 {
@@ -102,6 +103,73 @@ namespace TestIncapacidadesSoluciones
             Assert.True(apiRes.Success);
             Assert.NotNull(apiRes.Data);
             Assert.NotEmpty(apiRes.Data);
+        }
+
+        [Fact]
+        public async void Inability_UpdateState_Error()
+        {
+            inabilityRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(new Inability());
+
+            var res = await inabilityController.AcceptInability(new Guid());
+            Assert.IsType<BadRequestObjectResult>(res);
+        }
+
+        [Fact]
+        public async void Inability_UpdateState_Ok()
+        {
+            inabilityRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(new Inability());
+            userRepository.Setup(repo => repo.GetCollaboratorById(It.IsAny<Guid>())).ReturnsAsync(new Collaborator());
+            userRepository.Setup(repo => repo.UpdateCollaborator(It.IsAny<Collaborator>())).ReturnsAsync(new Collaborator());
+
+            inabilityRepository.Setup(
+                repo => repo.Update(It.IsAny<Inability>())
+            ).ReturnsAsync(new Inability() { State = "ACCEPTED" });
+
+            var res = await inabilityController.AcceptInability(new Guid());
+            var ok = Assert.IsType<OkObjectResult>(res);
+
+            var apiRes = ok.Value as ApiRes<Inability>;
+            Assert.NotNull(apiRes);
+            Assert.True(apiRes.Success);
+            Assert.NotNull(apiRes.Data);
+            Assert.Equal("ACCEPTED", apiRes.Data.State);
+        }
+
+        [Fact]
+        public async void Inability_Advise_Error()
+        {
+            inabilityRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(new Inability()
+            {
+                State = InabilityStateFactory.GetState(INABILITY_STATE.PENDING)
+            });
+
+            // Inability state need to be accepted
+            var res = await inabilityController.AdviseInability(new Guid(), true);
+            Assert.IsType<BadRequestObjectResult>(res);
+        }
+
+        [Fact]
+        public async void Inability_Advise_Ok()
+        {
+            var inability = new Inability()
+            {
+                State = InabilityStateFactory.GetState(INABILITY_STATE.ACCEPTED)
+            };
+
+            // Inability state need to be accepted
+            inabilityRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(inability);
+            inabilityRepository.Setup(
+                repo => repo.Update(It.IsAny<Inability>())
+            ).ReturnsAsync(new Inability() { Advise = true });
+
+            var res = await inabilityController.AdviseInability(new Guid(), true);
+            var ok = Assert.IsType<OkObjectResult>(res);
+
+            var apiRes = ok.Value as ApiRes<Inability>;
+            Assert.NotNull(apiRes);
+            Assert.True(apiRes.Success);
+            Assert.NotNull(apiRes.Data);
+            Assert.True(apiRes.Data.Advise);
         }
     }
 }

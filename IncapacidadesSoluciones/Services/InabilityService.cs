@@ -125,7 +125,6 @@ namespace IncapacidadesSoluciones.Services
             else if (inability.State != InabilityStateFactory.GetState(INABILITY_STATE.ACCEPTED))
                 return new ApiRes<Inability>()
                 {
-                    Success = true,
                     Message = "La incapacidad no ha sido aceptada.",
                     Data = inability
                 };
