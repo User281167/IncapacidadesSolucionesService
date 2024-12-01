@@ -70,7 +70,8 @@ namespace TestIncapacidaesSoluciones
         public async void RegisterCompanyAndLeader_UserExists_BadRequest()
         {
             // Arrange
-            var req = new AuthCompanyReq {
+            var req = new AuthCompanyReq
+            {
                 Company = companyTets,
                 Leader = userTest
             };
@@ -227,7 +228,7 @@ namespace TestIncapacidaesSoluciones
             // Assert
             var bad = Assert.IsType<OkObjectResult>(res);
             var authRes = bad.Value as AuthRes;
-            
+
             Assert.NotNull(authRes);
             Assert.Equal("Error al registrar la compañia", authRes.ErrorMessage);
             Assert.Equal(authRes.User.Id, user.Id);
@@ -282,6 +283,133 @@ namespace TestIncapacidaesSoluciones
             Assert.NotNull(authRes.Token);
             Assert.NotEmpty(authRes.Token);
             Assert.Equal(UserRoleFactory.GetRoleName(USER_ROLE.LEADER), authRes.User.Role);
+        }
+
+        [Fact]
+        public async void UpdateCompany_ErrorNit()
+        {
+            User leader = new User
+            {
+                CompanyNIT = "test",
+                Role = UserRoleFactory.GetRoleName(USER_ROLE.LEADER)
+            };
+
+            Guid leaderId = new("00000000-0000-0000-0000-000000000001");
+
+            var company = companyTets;
+            company.Type = CompanyTypeFactory.GetCompanyType(COMPANY_TYPE.SMALL);
+            company.Sector = CompanySectorFactory.GetCompanySector(COMPANY_SECTOR.PRIMARY);
+
+            var req = new CompanyReq
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                Nit = "nit123",
+                Name = company.Name,
+                Description = company.Description,
+                Email = company.Email,
+                Founded = company.Founded,
+                Address = company.Address,
+                Type = company.Type,
+                Sector = company.Sector
+            };
+
+            userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(leader);
+            companyRepository.Setup(
+                repo => repo.GetCompany(It.IsAny<Guid>())
+                ).ReturnsAsync(new Company() { LeaderId = leaderId });
+            companyRepository.Setup(repo => repo.CompanyExists(It.IsAny<string>())).ReturnsAsync(true);
+
+            // Act
+            var res = await authController.UpdateCompany(leaderId, req);
+
+            // Assert
+            Assert.NotNull(res);
+            Assert.IsType<BadRequestObjectResult>(res);
+        }
+
+        [Fact]
+        public async void UpdateCompany_LeaderHasNoPermissions()
+        {
+            User leader = new User
+            {
+                CompanyNIT = "test",
+                Role = UserRoleFactory.GetRoleName(USER_ROLE.LEADER)
+            };
+
+            Guid leaderId = new("00000000-0000-0000-0000-000000000001");
+
+            var company = companyTets;
+            company.Type = CompanyTypeFactory.GetCompanyType(COMPANY_TYPE.SMALL);
+            company.Sector = CompanySectorFactory.GetCompanySector(COMPANY_SECTOR.PRIMARY);
+
+            var req = new CompanyReq
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                Nit = "nit123",
+                Name = company.Name,
+                Description = company.Description,
+                Email = company.Email,
+                Founded = company.Founded,
+                Address = company.Address,
+                Type = company.Type,
+                Sector = company.Sector
+            };
+
+            userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(leader);
+            companyRepository.Setup(
+                repo => repo.GetCompany(It.IsAny<Guid>())
+                ).ReturnsAsync(new Company());
+            companyRepository.Setup(repo => repo.CompanyExists(It.IsAny<string>())).ReturnsAsync(false);
+
+            // Act
+            var res = await authController.UpdateCompany(leaderId, req);
+
+            // Assert
+            Assert.NotNull(res);
+            Assert.IsType<BadRequestObjectResult>(res);
+        }
+
+        [Fact]
+        public async void UpdateCompany_Ok()
+        {
+            User leader = new User
+            {
+                CompanyNIT = "test",
+                Role = UserRoleFactory.GetRoleName(USER_ROLE.LEADER)
+            };
+
+            Guid leaderId = new("00000000-0000-0000-0000-000000000001");
+
+            var company = companyTets;
+            company.Type = CompanyTypeFactory.GetCompanyType(COMPANY_TYPE.SMALL);
+            company.Sector = CompanySectorFactory.GetCompanySector(COMPANY_SECTOR.PRIMARY);
+
+            var req = new CompanyReq
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                Nit = "nit123",
+                Name = company.Name,
+                Description = company.Description,
+                Email = company.Email,
+                Founded = company.Founded,
+                Address = company.Address,
+                Type = company.Type,
+                Sector = company.Sector
+            };
+
+            userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(leader);
+            companyRepository.Setup(
+                repo => repo.GetCompany(It.IsAny<Guid>())
+                ).ReturnsAsync(new Company() { LeaderId = leaderId });
+            companyRepository.Setup(repo => repo.CompanyExists(It.IsAny<string>())).ReturnsAsync(false);
+            companyRepository.Setup(repo => repo.Update(It.IsAny<Company>())).ReturnsAsync(new Company());
+
+            // Act
+            var res = await authController.UpdateCompany(leaderId, req);
+
+            // Assert
+            Assert.NotNull(res);
+            Assert.IsType<OkResult>(res);
         }
     }
 }

@@ -100,6 +100,9 @@ namespace IncapacidadesSoluciones.Services
 
             var company = await companyRepository.GetCompany(req.Id);
 
+            System.Console.WriteLine(company.LeaderId);
+            System.Console.WriteLine(leaderId);
+
             if (company == null)
                 return "No se pudo encontrar la empresa.";
             else if (company.LeaderId != leaderId)
