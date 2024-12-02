@@ -53,7 +53,7 @@ namespace IncapacidadesSoluciones.Controllers
             return Ok(res);
         }
 
-        [HttpGet("no-accepted"), Authorize(Roles = "RECEPCIONISTA")]
+        [HttpGet("no-accepted"), Authorize(Roles = "RECEPCIONISTA, LIDER")]
         public async Task<IActionResult> GetNoAccepted([FromQuery] Guid receptionistId)
         {
             try
@@ -73,7 +73,7 @@ namespace IncapacidadesSoluciones.Controllers
             }
         }
 
-        [HttpPut("accept"), Authorize(Roles = "RECEPCIONISTA")]
+        [HttpPut("accept"), Authorize(Roles = "RECEPCIONISTA, LIDER")]
         public async Task<IActionResult> AcceptInability([FromQuery] Guid id)
         {
             try
@@ -93,7 +93,7 @@ namespace IncapacidadesSoluciones.Controllers
             }
         }
 
-        [HttpPut("discharge"), Authorize(Roles = "RECEPCIONISTA")]
+        [HttpPut("discharge"), Authorize(Roles = "RECEPCIONISTA, LIDER")]
         public async Task<IActionResult> DischargeInability([FromQuery] Guid id)
         {
             try
@@ -113,7 +113,7 @@ namespace IncapacidadesSoluciones.Controllers
             }
         }
 
-        [HttpPut("finish"), Authorize(Roles = "AUXILIAR")]
+        [HttpPut("finish"), Authorize(Roles = "AUXILIAR, LIDER")]
         public async Task<IActionResult> FinishInability([FromQuery] Guid id)
         {
             try
@@ -133,7 +133,7 @@ namespace IncapacidadesSoluciones.Controllers
             }
         }
 
-        [HttpPut("terminate"), Authorize(Roles = "AUXILIAR")]
+        [HttpPut("terminate"), Authorize(Roles = "AUXILIAR, LIDER")]
         public async Task<IActionResult> TerminateInability([FromQuery] Guid id)
         {
             try
@@ -153,12 +153,32 @@ namespace IncapacidadesSoluciones.Controllers
             }
         }
 
-        [HttpPut("advise"), Authorize(Roles = "ASESOR")]
+        [HttpPut("advise"), Authorize(Roles = "ASESOR, LIDER")]
         public async Task<IActionResult> AdviseInability([FromQuery] Guid id, [FromQuery] bool isAdvice)
         {
             try
             {
                 var res = await InabilityService.UpdateAdvice(id, isAdvice);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new ApiRes<Inability>
+                    {
+                        Message = "Error interno al procesar la solicitud"
+                    }
+                );
+            }
+        }
+
+        [HttpPut("payment"), Authorize(Roles = "CARTERA_JURIDICA, LIDER")]
+        public async Task<IActionResult> PaymentInability(InabilityPaymentReq req)
+        {
+            try
+            {
+                var res = await InabilityService.PaymentInability(req);
                 return res.Success ? Ok(res) : BadRequest(res);
             }
             catch (Exception ex)

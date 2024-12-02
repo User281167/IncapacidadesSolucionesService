@@ -147,5 +147,43 @@ namespace IncapacidadesSoluciones.Services
 
             return new ApiRes<Inability>() { Success = true, Data = updateInability };
         }
+
+        public async Task<ApiRes<Inability>> PaymentInability(InabilityPaymentReq req)
+        {
+            var inability = await inabilityRepository.GetById(req.Id);
+
+            if (inability == null)
+                return new ApiRes<Inability>() { Message = "No se encuentra la incapacidad por el ID dado." };
+
+            var leader = await userRepository.GetById(req.LeaderId);
+
+            if (leader == null)
+                return new ApiRes<Inability>() { Message = "No tienes permisos para realizar esta operación." };
+
+            var user = await userRepository.GetById(leader.Id);
+
+            if (user == null)
+                return new ApiRes<Inability>() { Message = "No se encuentra el usuario por el ID dado." };
+
+            if (leader.CompanyNIT != user.CompanyNIT)
+                return new ApiRes<Inability>() { Message = "No tienes permisos para realizar esta operación." };
+            else if (inability.State != InabilityStateFactory.GetState(INABILITY_STATE.ACCEPTED))
+                return new ApiRes<Inability>()
+                {
+                    Message = "La incapacidad no ha sido aceptada.",
+                    Data = inability
+                };
+
+            // update
+            inability.CompanyPayment = req.CompanyPayment;
+            inability.HealthEntityPayment = req.HealthEntityPayment;
+            inability.Pay = req.CompanyPayment + req.HealthEntityPayment;
+            var updateInability = await inabilityRepository.Update(inability);
+
+            if (updateInability == null)
+                return new ApiRes<Inability>() { Message = "Error al actualizar la incapacidad." };
+
+            return new ApiRes<Inability>() { Success = true, Data = updateInability };
+        }
     }
 }
