@@ -4,7 +4,7 @@ namespace IncapacidadesSoluciones.Dto.auth
 {
     public class AuthRoleReq
     {
-        public Guid? Id { get; set; } // null for create
+        public Guid? UserId { get; set; } // null for create
 
         [Required(ErrorMessage = "El campo {0} es requerido")]
         public Guid LeaderId { get; set; }

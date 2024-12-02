@@ -110,5 +110,81 @@ namespace TestIncapacidadesSoluciones.auth
             Assert.True(apiRes.Success);
             Assert.NotNull(apiRes.Data);
         }
+
+        [Fact]
+        public async void UpdateRole_NitError()
+        {
+            var req = authRoleReq;
+            req.LeaderId = new Guid("00000000-0000-0000-0000-000000000001");
+            req.UserId = new Guid("00000000-0000-0000-0000-000000000002");
+            req.Cedula = "12345678";
+
+            User user = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                CompanyNIT = "123"
+            };
+
+            User leader = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                CompanyNIT = "000"
+            };
+
+            User check = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000003"),
+            };
+
+            // Arrange
+            userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(leader);
+            userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(user);
+            userRepository.Setup(
+                repo => repo.GetByEmailOrCedula(It.IsAny<string>(), It.IsAny<string>())
+            ).ReturnsAsync(check);
+
+            var res = await authController.UpdateRole(authRoleReq);
+            var bad = Assert.IsType<BadRequestObjectResult>(res);
+            var apiRes = bad.Value as ApiRes<User>;
+            Assert.NotNull(apiRes);
+            Assert.False(apiRes.Success);
+            Assert.NotEmpty(apiRes.Message);
+        }
+
+        [Fact]
+        public async void UpdateRole_Ok()
+        {
+            var req = authRoleReq;
+            req.LeaderId = new Guid("00000000-0000-0000-0000-000000000001");
+            req.UserId = new Guid("00000000-0000-0000-0000-000000000002");
+            req.Cedula = "12345678";
+
+            User user = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                CompanyNIT = "123"
+            };
+
+            User leader = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                CompanyNIT = "000"
+            };
+
+            // Arrange
+            userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(leader);
+            userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(user);
+            userRepository.Setup(
+                repo => repo.GetByEmailOrCedula(It.IsAny<string>(), It.IsAny<string>())
+            ).ReturnsAsync(user);
+            userRepository.Setup(repo => repo.Update(It.IsAny<User>())).ReturnsAsync(user);
+
+            var res = await authController.UpdateRole(authRoleReq);
+            var ok = Assert.IsType<OkObjectResult>(res);
+            var apiRes = ok.Value as ApiRes<User>;
+            Assert.NotNull(apiRes);
+            Assert.True(apiRes.Success);
+            Assert.NotNull(apiRes.Data);
+        }
     }
 }

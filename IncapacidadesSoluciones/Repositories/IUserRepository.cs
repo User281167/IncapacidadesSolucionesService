@@ -15,5 +15,6 @@ namespace IncapacidadesSoluciones.Repositories
         Task<Collaborator> GetCollaboratorById(Guid id);
         Task<Collaborator> UpdateCollaborator(Collaborator collaborator);
         Task Delete(Guid id);
+        Task<User> GetByEmailOrCedula(string email, string cedula);
     }
 }

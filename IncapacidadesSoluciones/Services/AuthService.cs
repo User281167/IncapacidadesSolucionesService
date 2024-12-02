@@ -277,7 +277,7 @@ namespace IncapacidadesSoluciones.Services
 
         public async Task<ApiRes<User>> UpdateRole(AuthRoleReq req)
         {
-            if (req.Id == null)
+            if (req.UserId == null)
                 return new ApiRes<User> { Message = "El campo Id es obligatorio." };
 
             var role = UserRoleFactory.GetRole(req.Role);
@@ -297,16 +297,17 @@ namespace IncapacidadesSoluciones.Services
                 {
                     Message = "Compruebe que tengas las credenciales necesarias para asignar roles."
                 };
-            else if (await userRepository.UserExists(req.Email, req.Cedula))
+
+            var user = await userRepository.GetById(req.UserId ?? Guid.Empty);
+            var UserExists = await userRepository.GetByEmailOrCedula(req.Email, req.Cedula);
+
+            if (user == null)
+                return new ApiRes<User> { Message = "No se pudo encontrar el usuario." };
+            else if (UserExists != null && UserExists.Id != user.Id)
                 return new ApiRes<User>
                 {
                     Message = "Ya existe un usuario con ese correo o cédula registrado."
                 };
-
-            var user = await userRepository.GetById(req.Id ?? Guid.Empty);
-
-            if (user == null)
-                return new ApiRes<User> { Message = "No se pudo encontrar el usuario." };
 
             user.Name = req.Name;
             user.LastName = req.LastName;
@@ -324,7 +325,7 @@ namespace IncapacidadesSoluciones.Services
             return new ApiRes<User>
             {
                 Success = true,
-                Message = "Usuario creado con éxito.",
+                Message = "Usuario actualizado con éxito.",
                 Data = res
             };
         }
@@ -336,7 +337,7 @@ namespace IncapacidadesSoluciones.Services
             if (leader == null)
                 return new ApiRes<bool> { Message = "No se pudo encontrar el líder." };
 
-            var user = await userRepository.GetById(req.Id);
+            var user = await userRepository.GetById(req.UserId);
 
             if (user == null)
                 return new ApiRes<bool> { Message = "No se pudo encontrar el usuario." };

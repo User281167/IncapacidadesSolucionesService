@@ -116,5 +116,15 @@ namespace IncapacidadesSoluciones.Repositories
                 .Where(c => c.Id == id)
                 .Delete();
         }
+
+        public async Task<User> GetByEmailOrCedula(string email, string cedula)
+        {
+            var user = await client
+                .From<User>()
+                .Where(u => u.Email == email || u.Cedula == cedula)
+                .Single();
+
+            return user;
+        }
     }
 }
