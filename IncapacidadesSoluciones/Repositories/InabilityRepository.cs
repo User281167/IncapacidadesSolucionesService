@@ -27,7 +27,7 @@ namespace IncapacidadesSoluciones.Repositories
         {
             var res = await client
                 .From<Inability>()
-                .Where(i => i.IdCollaborator == id)
+                .Where(i => i.CollaboratorId == id)
                 .Get();
 
             return res.Models;

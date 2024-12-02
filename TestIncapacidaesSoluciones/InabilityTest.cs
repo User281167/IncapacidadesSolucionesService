@@ -200,7 +200,7 @@ namespace TestIncapacidadesSoluciones
 
             Inability inability = new()
             {
-                IdCollaborator = user.Id
+                CollaboratorId = user.Id
             };
 
             userRepository.Setup(repo => repo.GetById(leader.Id)).ReturnsAsync(leader);
@@ -240,7 +240,7 @@ namespace TestIncapacidadesSoluciones
 
             Inability inability = new()
             {
-                IdCollaborator = user.Id
+                CollaboratorId = user.Id
             };
 
             userRepository.Setup(repo => repo.GetById(leader.Id)).ReturnsAsync(leader);
@@ -258,7 +258,7 @@ namespace TestIncapacidadesSoluciones
             var inability = new Inability()
             {
                 State = InabilityStateFactory.GetState(INABILITY_STATE.ACCEPTED),
-                IdCollaborator = new Guid("00000000-0000-0000-0000-000000000001")
+                CollaboratorId = new Guid("00000000-0000-0000-0000-000000000001")
             };
 
             // user and leader with same nit

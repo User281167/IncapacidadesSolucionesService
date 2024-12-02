@@ -1,4 +1,5 @@
-﻿using IncapacidadesSoluciones.Dto;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using IncapacidadesSoluciones.Dto;
 using IncapacidadesSoluciones.Dto.Inability;
 using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Repositories;
@@ -26,7 +27,7 @@ namespace IncapacidadesSoluciones.Services
 
             var inability = new Inability()
             {
-                IdCollaborator = req.IdCollaborator,
+                CollaboratorId = req.IdCollaborator,
                 Description = req.Description,
                 StartDate = req.StartDate,
                 EndDate = req.EndDate,
@@ -89,17 +90,39 @@ namespace IncapacidadesSoluciones.Services
                     Data = inability
                 };
 
-            Collaborator collaborator = await userRepository.GetCollaboratorById(inability.IdCollaborator);
+            Collaborator collaborator = await userRepository.GetCollaboratorById(inability.CollaboratorId);
 
             if (collaborator == null)
                 return new ApiRes<Inability>() { Message = "No se encuentra el usuario de la incapacidad." };
+            else if (collaborator.IsReplacing && state == INABILITY_STATE.ACCEPTED)
+                return new ApiRes<Inability>() { Message = "El usuario a incapacitar está reemplazando otra." };
 
             // update collaborator
             bool isAccepted = state == INABILITY_STATE.ACCEPTED;
 
+            // update collaborator and replacement
             if (isAccepted != collaborator.Inability)
             {
-                collaborator.Inability = state == INABILITY_STATE.ACCEPTED;
+                collaborator.Inability = isAccepted;
+
+                if (state == INABILITY_STATE.TERMINATED && collaborator.HasReplacement)
+                {
+                    // update user and replacement
+                    var replacement = await userRepository.GetCollaboratorById(inability.ReplacementId ?? Guid.Empty);
+
+                    if (replacement == null)
+                        return new ApiRes<Inability>() { Message = "Error el usuario de reemplazo no se encuentra." };
+
+                    replacement.IsReplacing = false;
+
+                    var updateReplacement = await userRepository.UpdateCollaborator(replacement);
+
+                    if (updateReplacement == null)
+                        return new ApiRes<Inability>() { Message = "Error al actualizar el usuario de reemplazo." };
+
+                    collaborator.HasReplacement = false;
+                }
+
                 var updateCollaborator = await userRepository.UpdateCollaborator(collaborator);
 
                 if (updateCollaborator == null)
@@ -156,11 +179,11 @@ namespace IncapacidadesSoluciones.Services
                 return new ApiRes<Inability>() { Message = "No tienes permisos para realizar esta operación." };
 
             var inability = await inabilityRepository.GetById(req.Id);
-            
+
             if (inability == null)
                 return new ApiRes<Inability>() { Message = "No se encuentra la incapacidad por el ID dado." };
 
-            var user = await userRepository.GetById(inability.IdCollaborator);
+            var user = await userRepository.GetById(inability.CollaboratorId);
 
             if (user == null)
                 return new ApiRes<Inability>() { Message = "No se encuentra el usuario por el ID dado." };
@@ -181,6 +204,66 @@ namespace IncapacidadesSoluciones.Services
 
             if (updateInability == null)
                 return new ApiRes<Inability>() { Message = "Error al actualizar la incapacidad." };
+
+            return new ApiRes<Inability>() { Success = true, Data = updateInability };
+        }
+
+        public async Task<ApiRes<Inability>> AddReplacement(InabilityReplacementReq req)
+        {
+            var leader = await userRepository.GetById(req.LeaderId);
+
+            if (leader == null)
+                return new ApiRes<Inability>() { Message = "No tienes permisos para realizar esta operación." };
+
+            var inability = await inabilityRepository.GetById(req.InabilityId);
+
+            if (inability == null)
+                return new ApiRes<Inability>() { Message = "No se encuentra la incapacidad por el ID dado." };
+            else if (inability.State != InabilityStateFactory.GetState(INABILITY_STATE.ACCEPTED))
+                return new ApiRes<Inability>()
+                {
+                    Message = "La incapacidad no ha sido aceptada.",
+                    Data = inability
+                };
+
+            var user = await userRepository.GetById(inability.CollaboratorId);
+
+            if (user == null)
+                return new ApiRes<Inability>() { Message = "No se encuentra el usuario por el ID dado." };
+            else if (user.CompanyNIT != leader.CompanyNIT)
+                return new ApiRes<Inability>() { Message = "No tienes permisos para realizar esta operación." };
+
+            // update collaborator
+            var collaborator = await userRepository.GetCollaboratorById(req.ReplacementId);
+            var collaboratorInability = await userRepository.GetCollaboratorById(user.Id);
+
+            if (collaborator == null || collaboratorInability == null)
+                return new ApiRes<Inability>() { Message = "No se encuentra el reemplazo por el ID dado." };
+            else if (user.Id == collaborator.Id)
+                return new ApiRes<Inability>() { Message = "El usuario de reemplazo es el mismo que el usuario de la incapacidad." };
+            else if (collaborator.Inability)
+                return new ApiRes<Inability>() { Message = "El usuario de reemplazo tiene una incapacidad aceptada." };
+            else if (collaborator.IsReplacing)
+                return new ApiRes<Inability>() { Message = "El usuario de reemplazo ya está reemplazando otra." };
+            else if (collaboratorInability.IsReplacing)
+                return new ApiRes<Inability>() { Message = "El usuario de la incapacidad está reemplazando otra." };
+
+            // update incapacity
+            inability.ReplacementId = req.ReplacementId;
+            collaboratorInability.Inability = true;
+            collaboratorInability.HasReplacement = true;
+            collaborator.IsReplacing = true;
+
+            var updateInability = await inabilityRepository.Update(inability);
+            var updateCollaborator = await userRepository.UpdateCollaborator(collaborator);
+            var updateUser = await userRepository.UpdateCollaborator(collaboratorInability);
+
+            if (updateInability == null)
+                return new ApiRes<Inability>() { Message = "Error al actualizar la incapacidad." };
+            else if (updateCollaborator == null)
+                return new ApiRes<Inability>() { Message = "Error al actualizar el usuario del reemplazo." };
+            else if (updateUser == null)
+                return new ApiRes<Inability>() { Message = "Error al actualizar el usuario de la incapacidad." };
 
             return new ApiRes<Inability>() { Success = true, Data = updateInability };
         }

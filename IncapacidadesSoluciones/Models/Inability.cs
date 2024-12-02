@@ -13,10 +13,10 @@ namespace IncapacidadesSoluciones.Models
         public Guid Id { get; set; }
 
         [Column("id_collaborator")]
-        public Guid IdCollaborator { get; set; }
+        public Guid CollaboratorId { get; set; }
 
         [Column("id_replacement")]
-        public Guid? IdReplacement { get; set; }
+        public Guid? ReplacementId { get; set; }
 
         [Column("type")]
         public string Type { get; set; }

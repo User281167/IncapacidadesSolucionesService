@@ -1,4 +1,5 @@
 ﻿using IncapacidadesSoluciones.Dto;
+using IncapacidadesSoluciones.Dto.auth;
 using IncapacidadesSoluciones.Dto.Inability;
 using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Services;
@@ -12,11 +13,11 @@ namespace IncapacidadesSoluciones.Controllers
     [Route("[controller]")]
     public class InabilityController : ControllerBase
     {
-        private readonly InabilityService InabilityService;
+        private readonly InabilityService inabilityService;
 
-        public InabilityController(InabilityService InabilityService)
+        public InabilityController(InabilityService inabilityService)
         {
-            this.InabilityService = InabilityService;
+            this.inabilityService = inabilityService;
         }
 
         [HttpPost, Authorize(Roles = "COLABORADOR")]
@@ -25,7 +26,7 @@ namespace IncapacidadesSoluciones.Controllers
             if (req == null)
                 return BadRequest("La información no puede ser nula.");
 
-            var res = await InabilityService.AddInability(req);
+            var res = await inabilityService.AddInability(req);
 
             if (!res.Success)
                 return BadRequest(res.Message);
@@ -40,7 +41,7 @@ namespace IncapacidadesSoluciones.Controllers
 
             try
             {
-                res = await InabilityService.GetAllFromUser(userId);
+                res = await inabilityService.GetAllFromUser(userId);
             }
             catch (Exception ex)
             {
@@ -58,7 +59,7 @@ namespace IncapacidadesSoluciones.Controllers
         {
             try
             {
-                var res = await InabilityService.GetNoAccepted(receptionistId);
+                var res = await inabilityService.GetNoAccepted(receptionistId);
                 return res.Success ? Ok(res) : BadRequest(res);
             }
             catch (Exception ex)
@@ -78,7 +79,7 @@ namespace IncapacidadesSoluciones.Controllers
         {
             try
             {
-                var res = await InabilityService.UpdateStateInability(id, INABILITY_STATE.ACCEPTED);
+                var res = await inabilityService.UpdateStateInability(id, INABILITY_STATE.ACCEPTED);
                 return res.Success ? Ok(res) : BadRequest(res);
             }
             catch (Exception ex)
@@ -98,7 +99,7 @@ namespace IncapacidadesSoluciones.Controllers
         {
             try
             {
-                var res = await InabilityService.UpdateStateInability(id, INABILITY_STATE.DISCHARGED);
+                var res = await inabilityService.UpdateStateInability(id, INABILITY_STATE.DISCHARGED);
                 return res.Success ? Ok(res) : BadRequest(res);
             }
             catch (Exception ex)
@@ -118,7 +119,7 @@ namespace IncapacidadesSoluciones.Controllers
         {
             try
             {
-                var res = await InabilityService.UpdateStateInability(id, INABILITY_STATE.FINISHED);
+                var res = await inabilityService.UpdateStateInability(id, INABILITY_STATE.FINISHED);
                 return res.Success ? Ok(res) : BadRequest(res);
             }
             catch (Exception ex)
@@ -138,7 +139,7 @@ namespace IncapacidadesSoluciones.Controllers
         {
             try
             {
-                var res = await InabilityService.UpdateStateInability(id, INABILITY_STATE.TERMINATED);
+                var res = await inabilityService.UpdateStateInability(id, INABILITY_STATE.TERMINATED);
                 return res.Success ? Ok(res) : BadRequest(res);
             }
             catch (Exception ex)
@@ -158,7 +159,7 @@ namespace IncapacidadesSoluciones.Controllers
         {
             try
             {
-                var res = await InabilityService.UpdateAdvice(id, isAdvice);
+                var res = await inabilityService.UpdateAdvice(id, isAdvice);
                 return res.Success ? Ok(res) : BadRequest(res);
             }
             catch (Exception ex)
@@ -178,7 +179,27 @@ namespace IncapacidadesSoluciones.Controllers
         {
             try
             {
-                var res = await InabilityService.PaymentInability(req);
+                var res = await inabilityService.PaymentInability(req);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new ApiRes<Inability>
+                    {
+                        Message = "Error interno al procesar la solicitud"
+                    }
+                );
+            }
+        }
+
+        [HttpPut("add-replacement"), Authorize(Roles = "LIDER")]
+        public async Task<IActionResult> AddReplacementInability(InabilityReplacementReq req)
+        {
+            try
+            {
+                var res = await inabilityService.AddReplacement(req);
                 return res.Success ? Ok(res) : BadRequest(res);
             }
             catch (Exception ex)
