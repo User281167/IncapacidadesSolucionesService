@@ -114,11 +114,6 @@ namespace TestIncapacidadesSoluciones.auth
         [Fact]
         public async void UpdateRole_NitError()
         {
-            var req = authRoleReq;
-            req.LeaderId = new Guid("00000000-0000-0000-0000-000000000001");
-            req.UserId = new Guid("00000000-0000-0000-0000-000000000002");
-            req.Cedula = "12345678";
-
             User user = new()
             {
                 Id = new Guid("00000000-0000-0000-0000-000000000002"),
@@ -154,11 +149,6 @@ namespace TestIncapacidadesSoluciones.auth
         [Fact]
         public async void UpdateRole_Ok()
         {
-            var req = authRoleReq;
-            req.LeaderId = new Guid("00000000-0000-0000-0000-000000000001");
-            req.UserId = new Guid("00000000-0000-0000-0000-000000000002");
-            req.Cedula = "12345678";
-
             User user = new()
             {
                 Id = new Guid("00000000-0000-0000-0000-000000000002"),
@@ -185,6 +175,99 @@ namespace TestIncapacidadesSoluciones.auth
             Assert.NotNull(apiRes);
             Assert.True(apiRes.Success);
             Assert.NotNull(apiRes.Data);
+        }
+
+        [Fact]
+        public async void DeleteRole_SameIdError()
+        {
+            DeleteAuthReq req = new()
+            {
+                UserId = new Guid("00000000-0000-0000-0000-000000000001"),
+                LeaderId = new Guid("00000000-0000-0000-0000-000000000001"),
+            };
+
+            User user = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+            };
+
+            // Arrange
+            userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(user);
+
+            var res = await authController.DeleteRole(req);
+            var bad = Assert.IsType<BadRequestObjectResult>(res);
+            var apiRes = bad.Value as ApiRes<User>;
+            Assert.NotNull(apiRes);
+            Assert.False(apiRes.Success);
+            Assert.NotEmpty(apiRes.Message);
+        }
+
+        [Fact]
+        public async void DeleteRole_NitError()
+        {
+            DeleteAuthReq req = new()
+            {
+                UserId = new Guid("00000000-0000-0000-0000-000000000001"),
+                LeaderId = new Guid("00000000-0000-0000-0000-000000000002"),
+            };
+
+            User user = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                CompanyNIT = "123"
+            };
+
+            User leader = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                CompanyNIT = "000"
+            };
+
+            // Arrange
+            userRepository.Setup(repo => repo.GetById(req.LeaderId)).ReturnsAsync(leader);
+            userRepository.Setup(repo => repo.GetById(req.UserId)).ReturnsAsync(user);
+            
+            var res = await authController.DeleteRole(req);
+            var bad = Assert.IsType<BadRequestObjectResult>(res);
+            var apiRes = bad.Value as ApiRes<bool>;
+            Assert.NotNull(apiRes);
+            Assert.False(apiRes.Success);
+            Assert.NotEmpty(apiRes.Message);
+        }
+
+
+        [Fact]
+        public async void DeleteRole_Ok()
+        {
+            DeleteAuthReq req = new()
+            {
+                UserId = new Guid("00000000-0000-0000-0000-000000000001"),
+                LeaderId = new Guid("00000000-0000-0000-0000-000000000002"),
+            };
+
+            User user = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                CompanyNIT = "000"
+            };
+
+            User leader = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                CompanyNIT = "000"
+            };
+
+            // Arrange
+            userRepository.Setup(repo => repo.GetById(req.LeaderId)).ReturnsAsync(leader);
+            userRepository.Setup(repo => repo.GetById(req.UserId)).ReturnsAsync(user);
+            userRepository.Setup(repo => repo.Delete(It.IsAny<Guid>()));
+
+            var res = await authController.DeleteRole(req);
+            var ok = Assert.IsType<OkObjectResult>(res);
+            var apiRes = ok.Value as ApiRes<bool>;
+            Assert.NotNull(apiRes);
+            Assert.True(apiRes.Success);
+            Assert.True(apiRes.Data);
         }
     }
 }
