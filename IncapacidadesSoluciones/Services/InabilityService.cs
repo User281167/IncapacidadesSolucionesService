@@ -150,22 +150,21 @@ namespace IncapacidadesSoluciones.Services
 
         public async Task<ApiRes<Inability>> PaymentInability(InabilityPaymentReq req)
         {
-            var inability = await inabilityRepository.GetById(req.Id);
-
-            if (inability == null)
-                return new ApiRes<Inability>() { Message = "No se encuentra la incapacidad por el ID dado." };
-
             var leader = await userRepository.GetById(req.LeaderId);
 
             if (leader == null)
                 return new ApiRes<Inability>() { Message = "No tienes permisos para realizar esta operación." };
 
-            var user = await userRepository.GetById(leader.Id);
+            var inability = await inabilityRepository.GetById(req.Id);
+            
+            if (inability == null)
+                return new ApiRes<Inability>() { Message = "No se encuentra la incapacidad por el ID dado." };
+
+            var user = await userRepository.GetById(inability.IdCollaborator);
 
             if (user == null)
                 return new ApiRes<Inability>() { Message = "No se encuentra el usuario por el ID dado." };
-
-            if (leader.CompanyNIT != user.CompanyNIT)
+            else if (leader.CompanyNIT != user.CompanyNIT)
                 return new ApiRes<Inability>() { Message = "No tienes permisos para realizar esta operación." };
             else if (inability.State != InabilityStateFactory.GetState(INABILITY_STATE.ACCEPTED))
                 return new ApiRes<Inability>()

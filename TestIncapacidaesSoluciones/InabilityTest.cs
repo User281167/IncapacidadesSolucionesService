@@ -171,5 +171,137 @@ namespace TestIncapacidadesSoluciones
             Assert.NotNull(apiRes.Data);
             Assert.True(apiRes.Data.Advise);
         }
+
+        [Fact]
+        public async void Inability_Payment_NitError()
+        {
+            inabilityRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(new Inability()
+            {
+                State = InabilityStateFactory.GetState(INABILITY_STATE.ACCEPTED)
+            });
+
+            User user = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                CompanyNIT = "123"
+            };
+
+            User leader = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                CompanyNIT = "123456789"
+            };
+
+            InabilityPaymentReq req = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                LeaderId = leader.Id,
+            };
+
+            Inability inability = new()
+            {
+                IdCollaborator = user.Id
+            };
+
+            userRepository.Setup(repo => repo.GetById(leader.Id)).ReturnsAsync(leader);
+            userRepository.Setup(repo => repo.GetById(user.Id)).ReturnsAsync(user);
+            inabilityRepository.Setup(repo => repo.GetById(req.Id)).ReturnsAsync(inability);
+
+            var res = await inabilityController.PaymentInability(req);
+            Assert.IsType<BadRequestObjectResult>(res);
+        }
+
+        [Fact]
+        public async void Inability_Payment_NoAcceptedError()
+        {
+            inabilityRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(new Inability()
+            {
+                State = InabilityStateFactory.GetState(INABILITY_STATE.PENDING)
+            });
+
+            // user and leader with same nit
+            User user = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                CompanyNIT = "123"
+            };
+
+            User leader = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                CompanyNIT = "123"
+            };
+
+            InabilityPaymentReq req = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                LeaderId = leader.Id,
+            };
+
+            Inability inability = new()
+            {
+                IdCollaborator = user.Id
+            };
+
+            userRepository.Setup(repo => repo.GetById(leader.Id)).ReturnsAsync(leader);
+            userRepository.Setup(repo => repo.GetById(user.Id)).ReturnsAsync(user);
+            inabilityRepository.Setup(repo => repo.GetById(req.Id)).ReturnsAsync(inability);
+
+            var res = await inabilityController.PaymentInability(req);
+            Assert.IsType<BadRequestObjectResult>(res);
+        }
+
+        [Fact]
+        public async void Inability_Payment_Ok()
+        {
+            // get by id, inability add NO_ACCEPTED
+            var inability = new Inability()
+            {
+                State = InabilityStateFactory.GetState(INABILITY_STATE.ACCEPTED),
+                IdCollaborator = new Guid("00000000-0000-0000-0000-000000000001")
+            };
+
+            // user and leader with same nit
+            User user = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                CompanyNIT = "123456789"
+            };
+
+            User leader = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                CompanyNIT = "123456789"
+            };
+
+            InabilityPaymentReq req = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                LeaderId = leader.Id,
+            };
+
+            userRepository.Setup(repo => repo.GetById(leader.Id)).ReturnsAsync(leader);
+            userRepository.Setup(repo => repo.GetById(user.Id)).ReturnsAsync(user);
+
+            // update
+            inabilityRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(inability);
+            inabilityRepository.Setup(
+                repo => repo.Update(It.IsAny<Inability>())
+            ).ReturnsAsync(new Inability()
+            {
+                CompanyPayment = 100,
+                HealthEntityPayment = 200,
+                Pay = 300
+            });
+
+            var res = await inabilityController.PaymentInability(req);
+            var ok = Assert.IsType<OkObjectResult>(res);
+
+            var apiRes = ok.Value as ApiRes<Inability>;
+            Assert.NotNull(apiRes);
+            Assert.True(apiRes.Success);
+            Assert.NotNull(apiRes.Data);
+            Assert.Equal(300ul, apiRes.Data.Pay);
+        }
     }
 }
