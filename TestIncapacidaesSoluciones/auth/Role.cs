@@ -161,6 +161,9 @@ namespace TestIncapacidadesSoluciones.auth
                 CompanyNIT = "000"
             };
 
+            var req = authRoleReq;
+            req.UserId = user.Id;
+
             // Arrange
             userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(leader);
             userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(user);
@@ -196,7 +199,7 @@ namespace TestIncapacidadesSoluciones.auth
 
             var res = await authController.DeleteRole(req);
             var bad = Assert.IsType<BadRequestObjectResult>(res);
-            var apiRes = bad.Value as ApiRes<User>;
+            var apiRes = bad.Value as ApiRes<bool>;
             Assert.NotNull(apiRes);
             Assert.False(apiRes.Success);
             Assert.NotEmpty(apiRes.Message);
