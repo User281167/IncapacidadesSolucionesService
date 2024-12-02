@@ -104,12 +104,12 @@ namespace TestIncapacidadesSoluciones.auth
 
             userRepository.Setup(repo => repo.UserExists(userReq.Email, userReq.Cedula)).ReturnsAsync(false);
             userRepository.Setup(repo => repo.SignUp(userReq.Email, userReq.Password)).ReturnsAsync(user);
-            userRepository.Setup(repo => repo.Update(It.IsAny<User>())).ReturnsAsync(user);
+            userRepository.Setup(repo => repo.UpdateByEmail(It.IsAny<User>())).ReturnsAsync(user);
 
             var res = await authController.RegisterUser(userReq);
             var ok = Assert.IsType<OkObjectResult>(res);
             var authRes = ok.Value as AuthRes;
-            
+
             Assert.Empty(authRes.ErrorMessage);
             Assert.NotEmpty(authRes.Token);
         }

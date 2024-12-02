@@ -63,6 +63,16 @@ namespace IncapacidadesSoluciones.Repositories
         {
             var res = await client
                     .From<User>()
+                    .Where(u => u.Id == user.Id)
+                    .Update(user);
+
+            return res.Models.FirstOrDefault();
+        }
+
+        public async Task<User> UpdateByEmail(User user)
+        {
+            var res = await client
+                    .From<User>()
                     .Where(u => u.Email == user.Email)
                     .Update(user);
 
@@ -97,6 +107,14 @@ namespace IncapacidadesSoluciones.Repositories
                 .Update(collaborator);
 
             return res.Models.FirstOrDefault();
+        }
+
+        public async Task Delete(Guid id)
+        {
+            await client
+                .From<User>()
+                .Where(c => c.Id == id)
+                .Delete();
         }
     }
 }

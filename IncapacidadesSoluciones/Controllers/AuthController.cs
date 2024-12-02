@@ -134,5 +134,47 @@ namespace IncapacidadesSoluciones.Controllers
                 );
             }
         }
+
+        [HttpPut("update-role"), Authorize(Roles = "LIDER")]
+        public async Task<IActionResult> UpdateRole(AuthRoleReq req)
+        {
+            try
+            {
+                var res = await authService.UpdateRole(req);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new ApiRes<User>
+                    {
+                        Message = "Error interno al procesar la petición."
+                    }
+                );
+            }
+        }
+
+        [HttpDelete("delete-role"), Authorize(Roles = "LIDER")]
+        public async Task<IActionResult> DeleteRole(DeleteAuthReq req)
+        {
+            try
+            {
+                var res = await authService.DeleteRole(req);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new ApiRes<bool>
+                    {
+                        Message = "Error interno al procesar la petición.",
+                        Data = false
+                    }
+                );
+            }
+        }
     }
 }
+

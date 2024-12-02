@@ -61,7 +61,7 @@ namespace IncapacidadesSoluciones.Services
                 user.CompanyNIT = companyRes?.Nit ?? "";
                 user.Role = UserRoleFactory.GetRoleName(USER_ROLE.LEADER);
 
-                var res = await userRepository.Update(user);
+                var res = await userRepository.UpdateByEmail(user);
 
                 if (res == null)
                     return new AuthRes { ErrorMessage = "Error no se pudo crear el usuario lider" };
@@ -149,7 +149,7 @@ namespace IncapacidadesSoluciones.Services
             user.Role = UserRoleFactory.GetRoleName(role);
             user.CompanyNIT = code.NIT;
 
-            var res = await userRepository.Update(user);
+            var res = await userRepository.UpdateByEmail(user);
 
             if (res == null)
                 return new AuthRes { ErrorMessage = "Error no se pudo crear el usuario" };
@@ -242,7 +242,7 @@ namespace IncapacidadesSoluciones.Services
                 return new ApiRes<User> { Message = "No se puede crear un usuario con credenciales de COLABORADOR." };
 
             // check leader and get company nit
-            var leader = await userRepository.GetById(req.leaderId);
+            var leader = await userRepository.GetById(req.LeaderId);
 
             if (leader == null)
                 return new ApiRes<User> { Message = "Compruebe que tengas las credenciales necesarias para asignar roles." };
@@ -262,7 +262,7 @@ namespace IncapacidadesSoluciones.Services
             user.Role = UserRoleFactory.GetRoleName(role);
             user.CompanyNIT = leader.CompanyNIT;
 
-            var res = await userRepository.Update(user);
+            var res = await userRepository.UpdateByEmail(user);
 
             if (res == null)
                 return new ApiRes<User> { Message = "Error al registrar y actualizar el usuario" };
@@ -272,6 +272,89 @@ namespace IncapacidadesSoluciones.Services
                 Success = true,
                 Message = "Usuario creado con éxito.",
                 Data = res
+            };
+        }
+
+        public async Task<ApiRes<User>> UpdateRole(AuthRoleReq req)
+        {
+            if (req.Id == null)
+                return new ApiRes<User> { Message = "El campo Id es obligatorio." };
+
+            var role = UserRoleFactory.GetRole(req.Role);
+
+            if (role == USER_ROLE.NOT_FOUND)
+                return new ApiRes<User> { Message = $"No se puede crear un usuario con credenciales de {req.Role}." };
+            else if (role == USER_ROLE.LEADER)
+                return new ApiRes<User> { Message = "No se puede crear un usuario con credenciales de LIDER." };
+            else if (role == USER_ROLE.COLLABORATOR)
+                return new ApiRes<User> { Message = "No se puede crear un usuario con credenciales de COLABORADOR." };
+
+            // check leader and get company nit
+            var leader = await userRepository.GetById(req.LeaderId);
+
+            if (leader == null)
+                return new ApiRes<User>
+                {
+                    Message = "Compruebe que tengas las credenciales necesarias para asignar roles."
+                };
+            else if (await userRepository.UserExists(req.Email, req.Cedula))
+                return new ApiRes<User>
+                {
+                    Message = "Ya existe un usuario con ese correo o cédula registrado."
+                };
+
+            var user = await userRepository.GetById(req.Id ?? Guid.Empty);
+
+            if (user == null)
+                return new ApiRes<User> { Message = "No se pudo encontrar el usuario." };
+
+            user.Name = req.Name;
+            user.LastName = req.LastName;
+            user.Email = req.Email.ToLower();
+            user.Cedula = req.Cedula;
+            user.Phone = req.Phone;
+            user.Role = UserRoleFactory.GetRoleName(role);
+            user.CompanyNIT = leader.CompanyNIT;
+
+            var res = await userRepository.Update(user);
+
+            if (res == null)
+                return new ApiRes<User> { Message = "Error al actualizar el usuario" };
+
+            return new ApiRes<User>
+            {
+                Success = true,
+                Message = "Usuario creado con éxito.",
+                Data = res
+            };
+        }
+
+        public async Task<ApiRes<bool>> DeleteRole(DeleteAuthReq req)
+        {
+            var leader = await userRepository.GetById(req.LeaderId);
+
+            if (leader == null)
+                return new ApiRes<bool> { Message = "No se pudo encontrar el líder." };
+
+            var user = await userRepository.GetById(req.Id);
+
+            if (user == null)
+                return new ApiRes<bool> { Message = "No se pudo encontrar el usuario." };
+            else if (leader.Id == user.Id)
+                return new ApiRes<bool> { Message = "No se puede eliminar el usuario que es el líder." };
+            else if (leader.CompanyNIT != user.CompanyNIT)
+                return new ApiRes<bool>
+                {
+                    Message = "No se puede eliminar el usuario que no pertenece a la empresa del líder."
+                };
+
+            await userRepository.Delete(user.Id);
+
+            return new ApiRes<bool>
+            {
+                Success = true,
+                Message = "Usuario eliminado con éxito.",
+                Data = true
             };
         }
     }

@@ -52,7 +52,7 @@ namespace TestIncapacidadesSoluciones
 
             userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(new User());
             userRepository.Setup(repo => repo.UserExists(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(false);
-            userRepository.Setup(repo => repo.Update(It.IsAny<User>())).ReturnsAsync(userReturn);
+            userRepository.Setup(repo => repo.UpdateByEmail(It.IsAny<User>())).ReturnsAsync(userReturn);
 
             var res = await userController.UpdateUserInfo(user);
             var ok = Assert.IsType<OkObjectResult>(res);

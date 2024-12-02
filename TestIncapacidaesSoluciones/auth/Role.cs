@@ -18,7 +18,7 @@ namespace TestIncapacidadesSoluciones.auth
 
         private AuthRoleReq authRoleReq = new AuthRoleReq
         {
-            leaderId = new Guid(),
+            LeaderId = new Guid(),
             Name = "Test",
             LastName = "Test",
             Cedula = "12345678",
@@ -82,7 +82,7 @@ namespace TestIncapacidadesSoluciones.auth
             // Arrange
             userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(new User());
             userRepository.Setup(repo => repo.UserExists(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
-            userRepository.Setup(repo => repo.Update(It.IsAny<User>())).ReturnsAsync(new User());
+            userRepository.Setup(repo => repo.UpdateByEmail(It.IsAny<User>())).ReturnsAsync(new User());
             userRepository.Setup(repo => repo.SignUp(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new User());
 
             var res = await authController.CreateRole(authRoleReq);
@@ -100,7 +100,7 @@ namespace TestIncapacidadesSoluciones.auth
             // Arrange
             userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(new User());
             userRepository.Setup(repo => repo.UserExists(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(false);
-            userRepository.Setup(repo => repo.Update(It.IsAny<User>())).ReturnsAsync(new User());
+            userRepository.Setup(repo => repo.UpdateByEmail(It.IsAny<User>())).ReturnsAsync(new User());
             userRepository.Setup(repo => repo.SignUp(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new User());
 
             var res = await authController.CreateRole(authRoleReq);

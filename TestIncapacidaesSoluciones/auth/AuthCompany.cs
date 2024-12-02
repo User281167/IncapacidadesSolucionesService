@@ -182,7 +182,7 @@ namespace TestIncapacidaesSoluciones
             };
 
             userRepository.Setup(repo => repo.SignUp(req.Leader.Email, req.Leader.Password)).ReturnsAsync(new User());
-            userRepository.Setup(repo => repo.Update(new User())).ReturnsAsync(new User());
+            userRepository.Setup(repo => repo.UpdateByEmail(new User())).ReturnsAsync(new User());
 
             // Act
             var res = await authController.RegisterCompany(req);
@@ -220,7 +220,7 @@ namespace TestIncapacidaesSoluciones
 
             environmentMock.Setup(env => env.GetEnvironmentVariable("JWT_KEY")).Returns(EnvironmentWrapper.JWT_KEY_TEST);
             userRepository.Setup(repo => repo.SignUp(req.Leader.Email, req.Leader.Password)).ReturnsAsync(user);
-            userRepository.Setup(repo => repo.Update(It.IsAny<User>())).ReturnsAsync(user);
+            userRepository.Setup(repo => repo.UpdateByEmail(It.IsAny<User>())).ReturnsAsync(user);
 
             // Act
             var res = await authController.RegisterCompany(req);
@@ -266,7 +266,7 @@ namespace TestIncapacidaesSoluciones
 
             environmentMock.Setup(env => env.GetEnvironmentVariable("JWT_KEY")).Returns(EnvironmentWrapper.JWT_KEY_TEST);
             userRepository.Setup(repo => repo.SignUp(req.Leader.Email, req.Leader.Password)).ReturnsAsync(user);
-            userRepository.Setup(repo => repo.Update(It.IsAny<User>())).ReturnsAsync(user);
+            userRepository.Setup(repo => repo.UpdateByEmail(It.IsAny<User>())).ReturnsAsync(user);
             companyRepository.Setup(repo => repo.Insert(It.IsAny<Company>())).ReturnsAsync(new Company());
 
             // Act

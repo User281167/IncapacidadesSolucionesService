@@ -17,7 +17,7 @@ namespace IncapacidadesSoluciones.Services
         public async Task<ApiRes<User>> UpdateUser(UserReq user)
         {
             if (user == null)
-                return new ApiRes<User>() { Success=false, Message="Información no válida." };
+                return new ApiRes<User>() { Success = false, Message = "Información no válida." };
 
             var newUser = await userRepository.GetById(user.Id);
 
@@ -31,8 +31,8 @@ namespace IncapacidadesSoluciones.Services
             newUser.Cedula = user.Cedula;
             newUser.Phone = user.Phone;
 
-            var res = await userRepository.Update(newUser);
-            
+            var res = await userRepository.UpdateByEmail(newUser);
+
             if (res == null)
                 return new ApiRes<User>() { Success = false, Message = "Error al actualizar el usuario." };
 
