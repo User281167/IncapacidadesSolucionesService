@@ -1,5 +1,4 @@
 ﻿using IncapacidadesSoluciones.Dto;
-using IncapacidadesSoluciones.Dto.auth;
 using IncapacidadesSoluciones.Dto.UserDto;
 using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Services;
@@ -10,7 +9,7 @@ namespace IncapacidadesSoluciones.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class UserController: ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly UserService userService;
 
@@ -36,10 +35,50 @@ namespace IncapacidadesSoluciones.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Error al procesar petición. " + ex.Message);  
+                return StatusCode(500, "Error al procesar petición.");
             }
-            
+
             return Ok(res);
+        }
+
+        [HttpGet, Authorize]
+        public async Task<IActionResult> GetUserInfo(Guid userId, Guid searchBy)
+        {
+            try
+            {
+                var res = await userService.GetUserInfo(userId, searchBy);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new ApiRes<User>
+                    {
+                        Message = "Error interno al procesar la solicitud. " + ex.Message
+                    }
+                );
+            }
+        }
+
+        [HttpGet("search-user"), Authorize]
+        public async Task<IActionResult> SearchUserByNameOrCedula(Guid searchBy, string? name, string? lastName, string? cedula)
+        {
+            try
+            {
+                var res = await userService.SearchUserByNameOrCedula(searchBy, name, lastName, cedula);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new ApiRes<User>
+                    {
+                        Message = "Error interno al procesar la solicitud. " + ex.Message
+                    }
+                );
+            }
         }
     }
 }

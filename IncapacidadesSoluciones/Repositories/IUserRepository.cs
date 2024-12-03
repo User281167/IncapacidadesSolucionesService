@@ -4,8 +4,8 @@ namespace IncapacidadesSoluciones.Repositories
 {
     public interface IUserRepository
     {
-        Task<Boolean> UserExists(string email, string cedula);
-        Task<Boolean> UserExists(Guid id);
+        Task<bool> UserExists(string email, string cedula);
+        Task<bool> UserExists(Guid id);
         Task<User> GetUserByEmail(string email);
         Task<User> GetById(Guid id);
         Task<User> SignUp(string email, string password);
@@ -16,5 +16,6 @@ namespace IncapacidadesSoluciones.Repositories
         Task<Collaborator> UpdateCollaborator(Collaborator collaborator);
         Task Delete(Guid id);
         Task<User> GetByEmailOrCedula(string email, string cedula);
+        Task<List<User>> GetByNameOrCedula(string nit, string name, string lastName, string cedula);
     }
 }

@@ -12,7 +12,7 @@ namespace IncapacidadesSoluciones.Repositories
             this.client = client;
         }
 
-        public async Task<Boolean> UserExists(string email, string cedula)
+        public async Task<bool> UserExists(string email, string cedula)
         {
             var res = await client
                 .From<User>()
@@ -22,7 +22,7 @@ namespace IncapacidadesSoluciones.Repositories
             return res != null;
         }
 
-        public async Task<Boolean> UserExists(Guid id)
+        public async Task<bool> UserExists(Guid id)
         {
             return await GetById(id) != null;
         }
@@ -125,6 +125,19 @@ namespace IncapacidadesSoluciones.Repositories
                 .Single();
 
             return user;
+        }
+
+        public async Task<List<User>> GetByNameOrCedula(string nit, string name, string lastName, string cedula)
+        {
+            var user = await client
+                .From<User>()
+                .Filter(u => u.CompanyNIT, Operator.Equals, nit)
+                .Filter(u => u.Name, Operator.ILike, $"%{name}%")
+                .Filter(u => u.LastName, Operator.ILike, $"%{lastName}%")
+                .Filter(u => u.Cedula, Operator.ILike, $"%{cedula}%")
+                .Get();
+
+            return user.Models;
         }
     }
 }

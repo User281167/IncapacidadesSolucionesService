@@ -2,6 +2,7 @@
 using IncapacidadesSoluciones.Dto;
 using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Dto.UserDto;
+using IncapacidadesSoluciones.Utilities.Role;
 
 namespace IncapacidadesSoluciones.Services
 {
@@ -41,6 +42,48 @@ namespace IncapacidadesSoluciones.Services
                 Success = true,
                 Data = res
             };
+        }
+
+        public async Task<ApiRes<User>> GetUserInfo(Guid userId, Guid searchBy)
+        {
+            User userSpecial = await userRepository.GetById(searchBy);
+
+            if (userSpecial == null)
+                return new ApiRes<User>() { Message = "No tienes permisos para realizar esta operación." };
+
+            USER_ROLE role = UserRoleFactory.GetRole(userSpecial.Role);
+
+            if (role == USER_ROLE.NOT_FOUND || role == USER_ROLE.COLLABORATOR)
+                return new ApiRes<User>() { Message = "No tienes permisos para realizar esta operación." };
+
+            User user = await userRepository.GetById(userId);
+
+            if (user == null)
+                return new ApiRes<User>() { Message = "No se encuentra el usuario por el ID dado." };
+            else if (user.CompanyNIT != userSpecial.CompanyNIT)
+                return new ApiRes<User>() { Message = "No tienes permisos para realizar esta operación." };
+
+            return new ApiRes<User>() { Success = true, Data = user };
+        }
+
+        public async Task<ApiRes<List<User>>> SearchUserByNameOrCedula(Guid searchBy, string name, string lastName, string cedula)
+        {
+            User userSpecial = await userRepository.GetById(searchBy);
+
+            if (userSpecial == null)
+                return new ApiRes<List<User>>() { Message = "No tienes permisos para realizar esta operación." };
+
+            USER_ROLE role = UserRoleFactory.GetRole(userSpecial.Role);
+
+            if (role == USER_ROLE.NOT_FOUND || role == USER_ROLE.COLLABORATOR)
+                return new ApiRes<List<User>>() { Message = "No tienes permisos para realizar esta operación." };
+
+            var users = await userRepository.GetByNameOrCedula(userSpecial.CompanyNIT, name, lastName, cedula);
+
+            if (users == null)
+                return new ApiRes<List<User>>() { Message = "Error al obtener los datos." };
+
+            return new ApiRes<List<User>>() { Success = true, Data = users };
         }
     }
 }
