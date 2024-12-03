@@ -148,5 +148,21 @@ namespace TestIncapacidadesSoluciones
             var res = await userController.SearchUser(leader.Id, null, null, null);
             Assert.IsType<OkObjectResult>(res);
         }
+
+        [Fact]
+        public async void GetSpecialRoles_Ok()
+        {
+            userRepository.Setup(
+                repo => repo.GetById(It.IsAny<Guid>())
+            ).ReturnsAsync(new User()
+            {
+                Role = UserRoleFactory.GetRoleName(USER_ROLE.LEADER)
+            });
+
+            userRepository.Setup(repo => repo.GetSpecialRoles(It.IsAny<string>())).ReturnsAsync(new List<User>());
+
+            var res = await userController.GetSpecialRoles(new Guid());
+            var ok = Assert.IsType<OkObjectResult>(res);
+        }
     }
 }
