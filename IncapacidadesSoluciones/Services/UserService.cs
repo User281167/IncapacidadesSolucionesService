@@ -134,5 +134,15 @@ namespace IncapacidadesSoluciones.Services
 
             return new ApiRes<List<User>>() { Success = true, Data = res };
         }
+
+        public async Task<ApiRes<List<Notification>>> GetNotifications(Guid userId)
+        {
+            List<Notification> res = await userRepository.GetNotifications(userId);
+
+            if (res == null)
+                return new ApiRes<List<Notification>>() { Message = "Error al obtener los datos." };
+
+            return new ApiRes<List<Notification>>() { Success = true, Data = res };
+        }
     }
 }

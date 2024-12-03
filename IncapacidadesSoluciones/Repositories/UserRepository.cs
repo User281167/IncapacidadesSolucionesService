@@ -194,5 +194,15 @@ namespace IncapacidadesSoluciones.Repositories
 
             return res.Models;
         }
+
+        public async Task<List<Notification>> GetNotifications(Guid userId)
+        {
+            var res = await client
+                .From<Notification>()
+                .Where(n => n.UserId == userId)
+                .Get();
+
+            return res.Models;
+        }
     }
 }

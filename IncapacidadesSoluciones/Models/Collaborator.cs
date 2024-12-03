@@ -3,7 +3,6 @@ using Supabase.Postgrest.Models;
 using Table = Supabase.Postgrest.Attributes.TableAttribute;
 using Column = Supabase.Postgrest.Attributes.ColumnAttribute;
 using PrimaryKey = Supabase.Postgrest.Attributes.PrimaryKeyAttribute;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace IncapacidadesSoluciones.Models
 {
@@ -12,9 +11,6 @@ namespace IncapacidadesSoluciones.Models
     {
         [PrimaryKey("id", false)]
         public Guid Id { get; set; }
-
-        // [ForeignKey(nameof(Id))]
-        // public User User { get; set; }
 
         [@Column("position")]
         public string Position { get; set; }
