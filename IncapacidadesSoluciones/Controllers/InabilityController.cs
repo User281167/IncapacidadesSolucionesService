@@ -213,5 +213,25 @@ namespace IncapacidadesSoluciones.Controllers
                 );
             }
         }
+
+        [HttpGet("payment-report"), Authorize(Roles = "CONTABILIDAD, LIDER")]
+        public async Task<IActionResult> GetPaymentReport([FromQuery] Guid id)
+        {
+            try
+            {
+                var res = await inabilityService.GetPaymentReport(id);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new ApiRes<List<Inability>>
+                    {
+                        Message = "Error interno al procesar la solicitud."
+                    }
+                );
+            }
+        }
     }
 }

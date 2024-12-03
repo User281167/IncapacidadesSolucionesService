@@ -2,6 +2,7 @@
 using QueryOptions = Supabase.Postgrest.QueryOptions;
 using Operator = Supabase.Postgrest.Constants.Operator;
 using IncapacidadesSoluciones.Utilities;
+using IncapacidadesSoluciones.Dto.Inability;
 
 namespace IncapacidadesSoluciones.Repositories
 {
@@ -70,6 +71,57 @@ namespace IncapacidadesSoluciones.Repositories
                 .Update(inability);
 
             return res.Models.First();
+        }
+
+        public async Task<List<InabilityPaymentRes>> GetPaymentReport(string nit)
+        {
+            var users = await client
+                .From<User>()
+                .Where(item => item.CompanyNIT == nit)
+                .Get();
+
+            var ids = users.Models.Select(u => u.Id).ToList();
+
+            var collaborators = await client
+                .From<Collaborator>()
+                .Filter("id", Operator.In, ids)
+                .Get();
+
+            var inabilities = await client
+                .From<Inability>()
+                .Filter("id_collaborator", Operator.In, ids)
+                .Filter("state", Operator.Equals, InabilityStateFactory.GetState(INABILITY_STATE.ACCEPTED))
+                .Get();
+
+            var res = new List<InabilityPaymentRes>();
+
+            foreach (var inability in inabilities.Models)
+            {
+                var user = await client
+                    .From<User>()
+                    .Where(u => u.Id == inability.CollaboratorId)
+                    .Get();
+
+                var userInfo = user.Models.First();
+
+                var collaborator = collaborators.Models.First(c => c.Id == userInfo.Id);
+
+                res.Add(new InabilityPaymentRes()
+                {
+                    CollaboratorId = userInfo.Id,
+                    InabilityId = inability.Id,
+                    Name = userInfo.Name,
+                    LastName = userInfo.LastName,
+                    Cedula = userInfo.Cedula,
+                    CompanyPayment = inability.CompanyPayment,
+                    HealthEntityPayment = inability.HealthEntityPayment,
+                    Pay = inability.Pay,
+                    BankAccount = collaborator.BankAccount,
+                    BankingEntity = collaborator.BankingEntity,
+                });
+            }
+
+            return res;
         }
     }
 }

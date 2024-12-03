@@ -1,4 +1,5 @@
-﻿using IncapacidadesSoluciones.Models;
+﻿using IncapacidadesSoluciones.Dto.Inability;
+using IncapacidadesSoluciones.Models;
 
 namespace IncapacidadesSoluciones.Repositories
 {
@@ -9,5 +10,6 @@ namespace IncapacidadesSoluciones.Repositories
         Task<List<Inability>> GetNoAccepted(string nit);
         Task<Inability> GetById(Guid id);
         Task<Inability> Update(Inability inability);
+        Task<List<InabilityPaymentRes>> GetPaymentReport(string nit);
     }
 }

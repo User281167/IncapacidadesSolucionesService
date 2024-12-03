@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using IncapacidadesSoluciones.Dto;
+﻿using IncapacidadesSoluciones.Dto;
 using IncapacidadesSoluciones.Dto.Inability;
 using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Repositories;
 using IncapacidadesSoluciones.Utilities;
+using IncapacidadesSoluciones.Utilities.Role;
 
 namespace IncapacidadesSoluciones.Services
 {
@@ -266,6 +266,25 @@ namespace IncapacidadesSoluciones.Services
                 return new ApiRes<Inability>() { Message = "Error al actualizar el usuario de la incapacidad." };
 
             return new ApiRes<Inability>() { Success = true, Data = updateInability };
+        }
+
+        public async Task<ApiRes<List<InabilityPaymentRes>>> GetPaymentReport(Guid id)
+        {
+            User special = await userRepository.GetById(id);
+
+            if (special == null)
+                return new ApiRes<List<InabilityPaymentRes>>()
+                {
+                    Message = "No tienes permisos para realizar esta operación."
+                };
+
+
+            List<InabilityPaymentRes> res = await inabilityRepository.GetPaymentReport(special.CompanyNIT);
+
+            if (res == null)
+                return new ApiRes<List<InabilityPaymentRes>>() { Message = "Error al obtener los datos." };
+
+            return new ApiRes<List<InabilityPaymentRes>>() { Success = true, Data = res };
         }
     }
 }
