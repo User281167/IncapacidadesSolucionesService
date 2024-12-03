@@ -1,7 +1,9 @@
 ﻿using IncapacidadesSoluciones.Dto.UserDto;
 using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Utilities.Role;
+
 using Operator = Supabase.Postgrest.Constants.Operator;
+using QueryOptions = Supabase.Postgrest.QueryOptions;
 
 namespace IncapacidadesSoluciones.Repositories
 {
@@ -203,6 +205,15 @@ namespace IncapacidadesSoluciones.Repositories
                 .Get();
 
             return res.Models;
+        }
+
+        public async Task<Notification> AddNotification(Notification notification)
+        {
+            var res = await client
+                .From<Notification>()
+                .Insert(notification, new QueryOptions { Returning = QueryOptions.ReturnType.Representation });
+
+            return res.Models.First();
         }
     }
 }

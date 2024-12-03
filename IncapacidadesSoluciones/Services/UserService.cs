@@ -9,10 +9,12 @@ namespace IncapacidadesSoluciones.Services
     public class UserService
     {
         private readonly IUserRepository userRepository;
+        private readonly IInabilityRepository inabilityRepository;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, IInabilityRepository inabilityRepository)
         {
             this.userRepository = userRepository;
+            this.inabilityRepository = inabilityRepository;
         }
 
         public async Task<ApiRes<User>> UpdateUser(UserReq user)
@@ -143,6 +145,39 @@ namespace IncapacidadesSoluciones.Services
                 return new ApiRes<List<Notification>>() { Message = "Error al obtener los datos." };
 
             return new ApiRes<List<Notification>>() { Success = true, Data = res };
+        }
+
+        public async Task<ApiRes<Notification>> AddNotification(AddNotificationReq req)
+        {
+            User user = await userRepository.GetById(req.UserId);
+
+            if (user == null)
+                return new ApiRes<Notification>() { Message = "No se encuentra el usuario por el ID dado." };
+
+            if (req.InabilityId != null)
+            {
+                Inability inability = await inabilityRepository.GetById(req.InabilityId.Value);
+
+                if (inability == null)
+                    return new ApiRes<Notification>() { Message = "No se encuentra la inactividad por el ID dado." };
+                else if (req.UserId != inability.CollaboratorId)
+                    return new ApiRes<Notification>() { Message = "No tienes permisos para realizar esta operación." };
+            }
+
+            Notification notification = new Notification()
+            {
+                Title = req.Title,
+                Message = req.Message,
+                UserId = req.UserId,
+                InabilityId = req.InabilityId
+            };
+
+            Notification res = await userRepository.AddNotification(notification);
+
+            if (res == null)
+                return new ApiRes<Notification>() { Message = "Error al añadir la notificación." };
+
+            return new ApiRes<Notification>() { Success = true, Data = res };
         }
     }
 }

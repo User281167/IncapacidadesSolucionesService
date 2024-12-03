@@ -13,6 +13,7 @@ namespace TestIncapacidadesSoluciones
     public class UserTest
     {
         Mock<IUserRepository> userRepository = new Mock<IUserRepository>();
+        Mock<IInabilityRepository> inabilityRepository = new Mock<IInabilityRepository>();
         UserService userService;
         UserController userController;
 
@@ -27,7 +28,7 @@ namespace TestIncapacidadesSoluciones
 
         public UserTest()
         {
-            userService = new UserService(userRepository.Object);
+            userService = new UserService(userRepository.Object, inabilityRepository.Object);
             userController = new UserController(userService);
         }
 
@@ -61,6 +62,7 @@ namespace TestIncapacidadesSoluciones
 
             Assert.NotNull(apiRes);
             Assert.True(apiRes.Success);
+            Assert.NotNull(apiRes.Data);
             Assert.Equal(apiRes.Data.Name, user.Name);
         }
 
@@ -178,6 +180,63 @@ namespace TestIncapacidadesSoluciones
             Assert.NotNull(resOk);
             Assert.True(resOk.Success);
             Assert.NotNull(resOk.Data);
+        }
+
+        [Fact]
+        public async void AddNotification_Error()
+        {
+            userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(new User());
+            inabilityRepository.Setup(
+                repo => repo.GetById(It.IsAny<Guid>())
+            ).ReturnsAsync(new Inability()
+            {
+                CollaboratorId = new Guid("00000000-0000-0000-0000-000000000003")
+            });
+
+            var req = new AddNotificationReq()
+            {
+                UserId = new Guid("00000000-0000-0000-0000-000000000001"),
+                InabilityId = new Guid("00000000-0000-0000-0000-000000000002"),
+                Title = "test",
+                Message = "test"
+            };
+
+            var res = await userController.AddNotification(req);
+            Assert.IsType<BadRequestObjectResult>(res);
+            var apiRes = (res as BadRequestObjectResult)?.Value as ApiRes<Notification>;
+            Assert.NotNull(apiRes);
+            Assert.False(apiRes.Success);
+        }
+
+        [Fact]
+        public async void AddNotification_Ok()
+        {
+            userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(new User());
+            inabilityRepository.Setup(
+                repo => repo.GetById(It.IsAny<Guid>())
+            ).ReturnsAsync(new Inability()
+            {
+                CollaboratorId = new Guid("00000000-0000-0000-0000-000000000001")
+            });
+
+            userRepository.Setup(
+                repo => repo.AddNotification(It.IsAny<Notification>())
+            ).ReturnsAsync(new Notification());
+
+            var req = new AddNotificationReq()
+            {
+                UserId = new Guid("00000000-0000-0000-0000-000000000001"),
+                InabilityId = new Guid("00000000-0000-0000-0000-000000000002"),
+                Title = "test",
+                Message = "test"
+            };
+
+            var res = await userController.AddNotification(req);
+            Assert.IsType<OkObjectResult>(res);
+            var apiRes = (res as OkObjectResult)?.Value as ApiRes<Notification>;
+            Assert.NotNull(apiRes);
+            Assert.True(apiRes.Success);
+            Assert.NotNull(apiRes.Data);
         }
     }
 }

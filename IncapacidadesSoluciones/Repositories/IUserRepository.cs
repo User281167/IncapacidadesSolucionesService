@@ -21,5 +21,6 @@ namespace IncapacidadesSoluciones.Repositories
         Task<List<UserInfoRes>> GetCollaboratorByNameOrCedula(string nit, string name, string lastName, string cedula);
         Task<List<User>> GetSpecialRoles(string nit);
         Task<List<Notification>> GetNotifications(Guid id);
+        Task<Notification> AddNotification(Notification notification);
     }
 }
