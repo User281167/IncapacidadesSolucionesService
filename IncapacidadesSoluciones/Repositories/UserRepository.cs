@@ -1,5 +1,6 @@
 ﻿using IncapacidadesSoluciones.Dto.UserDto;
 using IncapacidadesSoluciones.Models;
+using IncapacidadesSoluciones.Utilities.Role;
 using Operator = Supabase.Postgrest.Constants.Operator;
 
 namespace IncapacidadesSoluciones.Repositories
@@ -133,6 +134,7 @@ namespace IncapacidadesSoluciones.Repositories
             var user = await client
                 .From<User>()
                 .Filter(u => u.CompanyNIT, Operator.Equals, nit)
+                .Filter(u => u.Role, Operator.NotEqual, UserRoleFactory.GetRoleName(USER_ROLE.COLLABORATOR))
                 .Filter(u => u.Name, Operator.ILike, $"%{name}%")
                 .Filter(u => u.LastName, Operator.ILike, $"%{lastName}%")
                 .Filter(u => u.Cedula, Operator.ILike, $"%{cedula}%")
@@ -143,14 +145,23 @@ namespace IncapacidadesSoluciones.Repositories
 
         public async Task<List<UserInfoRes>> GetCollaboratorByNameOrCedula(string nit, string name, string lastName, string cedula)
         {
-            var users = await GetByNameOrCedula(nit, name, lastName, cedula);
+            var users = await client
+                .From<User>()
+                .Filter(u => u.CompanyNIT, Operator.Equals, nit)
+                .Filter(u => u.Role, Operator.Equals, UserRoleFactory.GetRoleName(USER_ROLE.COLLABORATOR))
+                .Filter(u => u.Name, Operator.ILike, $"%{name}%")
+                .Filter(u => u.LastName, Operator.ILike, $"%{lastName}%")
+                .Filter(u => u.Cedula, Operator.ILike, $"%{cedula}%")
+                .Get();
 
             if (users == null)
                 return null;
 
+            var ids = users.Models.Select(u => u.Id).ToList();
+
             var collaborator = await client
                 .From<Collaborator>()
-                .Filter(c => c.Id, Operator.In, users.Select(u => u.Id).ToList())
+                .Filter("id", Operator.In, ids)
                 .Get();
 
             if (collaborator == null)
@@ -158,7 +169,7 @@ namespace IncapacidadesSoluciones.Repositories
 
             List<UserInfoRes> res = new List<UserInfoRes>();
 
-            foreach (var user in users)
+            foreach (var user in users.Models)
             {
                 var userInfo = new UserInfoRes()
                 {
