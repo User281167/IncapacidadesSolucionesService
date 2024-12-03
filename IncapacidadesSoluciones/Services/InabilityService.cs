@@ -233,7 +233,7 @@ namespace IncapacidadesSoluciones.Services
             else if (user.CompanyNIT != leader.CompanyNIT)
                 return new ApiRes<Inability>() { Message = "No tienes permisos para realizar esta operación." };
 
-            // update collaborator
+            // update collaborator and replacement
             var collaborator = await userRepository.GetCollaboratorById(req.ReplacementId);
             var collaboratorInability = await userRepository.GetCollaboratorById(user.Id);
 

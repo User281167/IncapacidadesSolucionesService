@@ -303,5 +303,196 @@ namespace TestIncapacidadesSoluciones
             Assert.NotNull(apiRes.Data);
             Assert.Equal(300ul, apiRes.Data.Pay);
         }
+
+
+        [Fact]
+        public async void Inability_AddReplacement_SameIdError()
+        {
+            // replacement is equals to user
+            User leader = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                CompanyNIT = "123456789"
+            };
+
+            User user = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                CompanyNIT = "123456789"
+            };
+
+            User replacement = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000003"),
+                CompanyNIT = "123456789"
+            };
+
+            Inability inability = new()
+            {
+                State = InabilityStateFactory.GetState(INABILITY_STATE.ACCEPTED),
+                CollaboratorId = user.Id
+            };
+
+            Collaborator collaborator = new()
+            {
+                Id = user.Id,
+                Inability = true,
+                HasReplacement = true
+            };
+
+            userRepository.Setup(repo => repo.GetById(leader.Id)).ReturnsAsync(leader);
+            inabilityRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(inability);
+            userRepository.Setup(repo => repo.GetById(user.Id)).ReturnsAsync(user);
+            userRepository.Setup(repo => repo.GetCollaboratorById(replacement.Id)).ReturnsAsync(collaborator);
+            userRepository.Setup(repo => repo.GetCollaboratorById(user.Id)).ReturnsAsync(collaborator);
+
+            var req = new InabilityReplacementReq()
+            {
+                LeaderId = leader.Id,
+                InabilityId = inability.Id,
+                ReplacementId = replacement.Id
+            };
+
+            var res = await inabilityController.AddReplacementInability(req);
+            Assert.IsType<BadRequestObjectResult>(res);
+            var apiRes = (res as BadRequestObjectResult)?.Value as ApiRes<Inability>;
+            Assert.NotNull(apiRes);
+            Assert.Equal("El usuario de reemplazo es el mismo que el usuario de la incapacidad.", apiRes.Message);
+        }
+
+        [Fact]
+        public async void Inability_AddReplacement_Error()
+        {
+            // replacement has inability
+            User leader = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                CompanyNIT = "123456789"
+            };
+
+            User user = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                CompanyNIT = "123456789"
+            };
+
+            User replacement = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000003"),
+                CompanyNIT = "123456789"
+            };
+
+            Inability inability = new()
+            {
+                State = InabilityStateFactory.GetState(INABILITY_STATE.ACCEPTED),
+                CollaboratorId = user.Id
+            };
+
+            Collaborator collaborator = new()
+            {
+                Id = replacement.Id,
+                Inability = true,
+                HasReplacement = true
+            };
+
+            Collaborator collaboratorReplacement = new()
+            {
+                Id = replacement.Id,
+                Inability = true,
+                HasReplacement = true
+            };
+
+
+            userRepository.Setup(repo => repo.GetById(leader.Id)).ReturnsAsync(leader);
+            inabilityRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(inability);
+            userRepository.Setup(repo => repo.GetById(user.Id)).ReturnsAsync(user);
+            userRepository.Setup(repo => repo.GetCollaboratorById(user.Id)).ReturnsAsync(collaborator);
+            userRepository.Setup(repo => repo.GetCollaboratorById(replacement.Id)).ReturnsAsync(collaboratorReplacement);
+
+            var req = new InabilityReplacementReq()
+            {
+                LeaderId = leader.Id,
+                InabilityId = inability.Id,
+                ReplacementId = replacement.Id
+            };
+
+            var res = await inabilityController.AddReplacementInability(req);
+            Assert.IsType<BadRequestObjectResult>(res);
+            var apiRes = (res as BadRequestObjectResult)?.Value as ApiRes<Inability>;
+            Assert.NotNull(apiRes);
+            Assert.Equal("El usuario de reemplazo tiene una incapacidad aceptada.", apiRes.Message);
+        }
+
+        [Fact]
+        public async void Inability_AddReplacement_Ok()
+        {
+            // replacement has inability
+            User leader = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                CompanyNIT = "123456789"
+            };
+
+            User user = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                CompanyNIT = "123456789"
+            };
+
+            User replacement = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000003"),
+                CompanyNIT = "123456789"
+            };
+
+            Inability inability = new()
+            {
+                State = InabilityStateFactory.GetState(INABILITY_STATE.ACCEPTED),
+                CollaboratorId = user.Id
+            };
+
+            Collaborator collaborator = new()
+            {
+                Id = replacement.Id,
+                Inability = true,
+                HasReplacement = true
+            };
+
+            Collaborator collaboratorReplacement = new()
+            {
+                Id = replacement.Id,
+                Inability = false,
+                HasReplacement = false
+            };
+
+            userRepository.Setup(repo => repo.GetById(leader.Id)).ReturnsAsync(leader);
+            inabilityRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(inability);
+            userRepository.Setup(repo => repo.GetById(user.Id)).ReturnsAsync(user);
+            userRepository.Setup(repo => repo.GetCollaboratorById(user.Id)).ReturnsAsync(collaborator);
+            userRepository.Setup(repo => repo.GetCollaboratorById(replacement.Id)).ReturnsAsync(collaboratorReplacement);
+
+            userRepository.Setup(
+                repo => repo.UpdateCollaborator(It.IsAny<Collaborator>())
+            ).ReturnsAsync(new Collaborator());
+
+            inabilityRepository.Setup(
+                repo => repo.Update(It.IsAny<Inability>())
+            ).ReturnsAsync(new Inability() { State = "ACCEPTED" });
+
+            var req = new InabilityReplacementReq()
+            {
+                LeaderId = leader.Id,
+                InabilityId = inability.Id,
+                ReplacementId = replacement.Id
+            };
+
+            var res = await inabilityController.AddReplacementInability(req);
+            var ok = Assert.IsType<OkObjectResult>(res);
+
+            var apiRes = ok.Value as ApiRes<Inability>;
+            Assert.NotNull(apiRes);
+            Assert.True(apiRes.Success);
+            Assert.NotNull(apiRes.Data);
+        }
     }
 }
