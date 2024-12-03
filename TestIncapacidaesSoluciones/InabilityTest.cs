@@ -517,5 +517,20 @@ namespace TestIncapacidadesSoluciones
             Assert.True(apiRes.Success);
             Assert.NotNull(apiRes.Data);
         }
+
+        [Fact]
+        public async Task GetNotifications()
+        {
+            inabilityRepository.Setup(
+                repo => repo.GetNotifications(It.IsAny<Guid>())
+            ).ReturnsAsync(new List<Notification>());
+
+            var res = await inabilityController.GetNotifications(new Guid());
+            var ok = Assert.IsType<OkObjectResult>(res);
+            var apiRes = ok.Value as ApiRes<List<Notification>>;
+            Assert.NotNull(apiRes);
+            Assert.True(apiRes.Success);
+            Assert.NotNull(apiRes.Data);
+        }
     }
 }

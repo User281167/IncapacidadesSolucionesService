@@ -164,5 +164,20 @@ namespace TestIncapacidadesSoluciones
             var res = await userController.GetSpecialRoles(new Guid());
             var ok = Assert.IsType<OkObjectResult>(res);
         }
+
+        [Fact]
+        public async Task GetNotifications()
+        {
+            userRepository.Setup(
+                repo => repo.GetNotifications(It.IsAny<Guid>())
+            ).ReturnsAsync(new List<Notification>());
+
+            var res = await userController.GetNotifications(new Guid());
+            var ok = Assert.IsType<OkObjectResult>(res);
+            var resOk = ok.Value as ApiRes<List<Notification>>;
+            Assert.NotNull(resOk);
+            Assert.True(resOk.Success);
+            Assert.NotNull(resOk.Data);
+        }
     }
 }
