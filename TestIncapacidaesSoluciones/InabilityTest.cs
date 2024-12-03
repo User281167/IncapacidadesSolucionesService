@@ -494,5 +494,28 @@ namespace TestIncapacidadesSoluciones
             Assert.True(apiRes.Success);
             Assert.NotNull(apiRes.Data);
         }
+
+        [Fact]
+        public async void Inability_GetPaymentReport_Ok()
+        {
+            // Given
+            inabilityRepository.Setup(
+                repo => repo.GetPaymentReport(It.IsAny<string>())
+            ).ReturnsAsync(new List<InabilityPaymentRes>());
+
+            userRepository.Setup(
+                repo => repo.GetById(It.IsAny<Guid>())
+            ).ReturnsAsync(new User());
+
+            // When
+            var res = await inabilityController.GetPaymentReport(new Guid());
+
+            // Then
+            var ok = Assert.IsType<OkObjectResult>(res);
+            var apiRes = ok.Value as ApiRes<List<InabilityPaymentRes>>;
+            Assert.NotNull(apiRes);
+            Assert.True(apiRes.Success);
+            Assert.NotNull(apiRes.Data);
+        }
     }
 }
