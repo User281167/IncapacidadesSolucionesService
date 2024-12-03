@@ -100,5 +100,25 @@ namespace IncapacidadesSoluciones.Controllers
                 );
             }
         }
+
+        [HttpGet("special-roles"), Authorize(Roles = "LIDER")]
+        public async Task<IActionResult> GetSpecialRoles(Guid leaderId)
+        {
+            try
+            {
+                ApiRes<List<User>> res = await userService.GetSpecialRoles(leaderId);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new ApiRes<List<User>>
+                    {
+                        Message = "Error interno al procesar la solicitud."
+                    }
+                );
+            }
+        }
     }
 }

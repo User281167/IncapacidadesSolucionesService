@@ -116,5 +116,23 @@ namespace IncapacidadesSoluciones.Services
 
             return new ApiRes<List<UserInfoRes>>() { Success = true, Data = res };
         }
+
+        public async Task<ApiRes<List<User>>> GetSpecialRoles(Guid leaderId)
+        {
+            User leader = await userRepository.GetById(leaderId);
+
+            if (leader == null)
+                return new ApiRes<List<User>>() { Message = "No tienes permisos para realizar esta operación." };
+            else if (UserRoleFactory.GetRole(leader.Role) != USER_ROLE.LEADER)
+                return new ApiRes<List<User>>() { Message = "No tienes permisos para realizar esta operación." };
+
+
+            var res = await userRepository.GetSpecialRoles(leader.CompanyNIT);
+
+            if (res == null)
+                return new ApiRes<List<User>>() { Message = "Error al obtener los datos." };
+
+            return new ApiRes<List<User>>() { Success = true, Data = res };
+        }
     }
 }

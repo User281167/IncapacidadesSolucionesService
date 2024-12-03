@@ -182,5 +182,17 @@ namespace IncapacidadesSoluciones.Repositories
 
             return res;
         }
+
+        public async Task<List<User>> GetSpecialRoles(string nit)
+        {
+            var res = await client
+                .From<User>()
+                .Filter(u => u.CompanyNIT, Operator.Equals, nit)
+                .Filter(u => u.Role, Operator.NotEqual, UserRoleFactory.GetRoleName(USER_ROLE.LEADER))
+                .Filter(u => u.Role, Operator.NotEqual, UserRoleFactory.GetRoleName(USER_ROLE.COLLABORATOR))
+                .Get();
+
+            return res.Models;
+        }
     }
 }
