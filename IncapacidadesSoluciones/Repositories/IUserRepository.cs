@@ -1,4 +1,5 @@
-﻿using IncapacidadesSoluciones.Models;
+﻿using IncapacidadesSoluciones.Dto.UserDto;
+using IncapacidadesSoluciones.Models;
 
 namespace IncapacidadesSoluciones.Repositories
 {
@@ -17,5 +18,6 @@ namespace IncapacidadesSoluciones.Repositories
         Task Delete(Guid id);
         Task<User> GetByEmailOrCedula(string email, string cedula);
         Task<List<User>> GetByNameOrCedula(string nit, string name, string lastName, string cedula);
+        Task<List<UserInfoRes>> GetCollaboratorByNameOrCedula(string nit, string name, string lastName, string cedula);
     }
 }

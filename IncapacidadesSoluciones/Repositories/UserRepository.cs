@@ -1,4 +1,5 @@
-﻿using IncapacidadesSoluciones.Models;
+﻿using IncapacidadesSoluciones.Dto.UserDto;
+using IncapacidadesSoluciones.Models;
 using Operator = Supabase.Postgrest.Constants.Operator;
 
 namespace IncapacidadesSoluciones.Repositories
@@ -138,6 +139,37 @@ namespace IncapacidadesSoluciones.Repositories
                 .Get();
 
             return user.Models;
+        }
+
+        public async Task<List<UserInfoRes>> GetCollaboratorByNameOrCedula(string nit, string name, string lastName, string cedula)
+        {
+            var users = await GetByNameOrCedula(nit, name, lastName, cedula);
+
+            if (users == null)
+                return null;
+
+            var collaborator = await client
+                .From<Collaborator>()
+                .Filter(c => c.Id, Operator.In, users.Select(u => u.Id).ToList())
+                .Get();
+
+            if (collaborator == null)
+                return null;
+
+            List<UserInfoRes> res = new List<UserInfoRes>();
+
+            foreach (var user in users)
+            {
+                var userInfo = new UserInfoRes()
+                {
+                    User = user,
+                    Collaborator = collaborator.Models.Single(c => c.Id == user.Id)
+                };
+
+                res.Add(userInfo);
+            }
+
+            return res;
         }
     }
 }

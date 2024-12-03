@@ -62,11 +62,11 @@ namespace IncapacidadesSoluciones.Controllers
         }
 
         [HttpGet("search-user"), Authorize]
-        public async Task<IActionResult> SearchUserByNameOrCedula(Guid searchBy, string? name, string? lastName, string? cedula)
+        public async Task<IActionResult> SearchUser(Guid searchBy, string? name, string? lastName, string? cedula)
         {
             try
             {
-                var res = await userService.SearchUserByNameOrCedula(searchBy, name, lastName, cedula);
+                var res = await userService.SearchUser(searchBy, name, lastName, cedula);
                 return res.Success ? Ok(res) : BadRequest(res);
             }
             catch (Exception ex)
@@ -74,6 +74,26 @@ namespace IncapacidadesSoluciones.Controllers
                 return StatusCode(
                     500,
                     new ApiRes<User>
+                    {
+                        Message = "Error interno al procesar la solicitud."
+                    }
+                );
+            }
+        }
+
+        [HttpGet("serach-collaborator"), Authorize]
+        public async Task<IActionResult> SearchCollaboratorByNameOrCedula(Guid searchBy, string? name, string? lastName, string? cedula)
+        {
+            try
+            {
+                var res = await userService.SearchCollaborator(searchBy, name, lastName, cedula);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new ApiRes<List<UserInfoRes>>
                     {
                         Message = "Error interno al procesar la solicitud. " + ex.Message
                     }

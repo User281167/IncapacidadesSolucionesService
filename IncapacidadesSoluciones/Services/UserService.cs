@@ -66,7 +66,7 @@ namespace IncapacidadesSoluciones.Services
             return new ApiRes<User>() { Success = true, Data = user };
         }
 
-        public async Task<ApiRes<List<User>>> SearchUserByNameOrCedula(Guid searchBy, string name, string lastName, string cedula)
+        public async Task<ApiRes<List<User>>> SearchUser(Guid searchBy, string name, string lastName, string cedula)
         {
             User userSpecial = await userRepository.GetById(searchBy);
 
@@ -84,6 +84,37 @@ namespace IncapacidadesSoluciones.Services
                 return new ApiRes<List<User>>() { Message = "Error al obtener los datos." };
 
             return new ApiRes<List<User>>() { Success = true, Data = users };
+        }
+
+        public async Task<ApiRes<List<UserInfoRes>>> SearchCollaborator(Guid searchBy, string name, string lastName, string cedula)
+        {
+            User userSpecial = await userRepository.GetById(searchBy);
+
+            if (userSpecial == null)
+                return new ApiRes<List<UserInfoRes>>()
+                {
+                    Message = "No tienes permisos para realizar esta operación."
+                };
+
+            USER_ROLE role = UserRoleFactory.GetRole(userSpecial.Role);
+
+            if (role == USER_ROLE.NOT_FOUND || role == USER_ROLE.COLLABORATOR)
+                return new ApiRes<List<UserInfoRes>>()
+                {
+                    Message = "No tienes permisos para realizar esta operación."
+                };
+
+            var collaborators = await userRepository.GetCollaboratorByNameOrCedula(userSpecial.CompanyNIT, name, lastName, cedula);
+
+            if (collaborators == null)
+                return new ApiRes<List<UserInfoRes>>() { Message = "Error al obtener los datos." };
+
+            var res = await userRepository.GetCollaboratorByNameOrCedula(userSpecial.CompanyNIT, name, lastName, cedula);
+
+            if (res == null)
+                return new ApiRes<List<UserInfoRes>>() { Message = "Error al obtener los datos." };
+
+            return new ApiRes<List<UserInfoRes>>() { Success = true, Data = res };
         }
     }
 }
