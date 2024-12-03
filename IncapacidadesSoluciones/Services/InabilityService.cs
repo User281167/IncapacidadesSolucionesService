@@ -296,5 +296,25 @@ namespace IncapacidadesSoluciones.Services
 
             return new ApiRes<List<Notification>>() { Success = true, Data = res };
         }
+
+        public async Task<ApiRes<InabilityFile>> AddFile(AddFileReq req)
+        {
+            if (req.InabilityId != null)
+            {
+                var inability = await inabilityRepository.GetById(req.InabilityId.Value);
+
+                if (inability == null)
+                    return new ApiRes<InabilityFile>() { Message = "No se encuentra la incapacidad por el ID dado." };
+                else if (req.UserId != inability.CollaboratorId)
+                    return new ApiRes<InabilityFile>() { Message = "No tienes permisos para realizar esta operación." };
+            }
+
+            var res = await inabilityRepository.AddFile(req);
+
+            if (res == null)
+                return new ApiRes<InabilityFile>() { Message = "Error al añadir el archivo." };
+
+            return new ApiRes<InabilityFile>() { Success = true, Data = res };
+        }
     }
 }

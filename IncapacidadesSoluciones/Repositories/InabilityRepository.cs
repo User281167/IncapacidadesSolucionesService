@@ -133,5 +133,43 @@ namespace IncapacidadesSoluciones.Repositories
 
             return res.Models;
         }
+
+        public async Task<InabilityFile> AddFile(AddFileReq req)
+        {
+            if (req.File == null)
+                return null;
+
+            string title = req.Title + DateTime.Now.ToString("yyyyMMddHHmmss") + ".pdf";
+            var filePath = Path.GetTempFileName();
+
+            using (var stream = System.IO.File.Create(filePath))
+            {
+                await req.File.CopyToAsync(stream);
+            }
+
+            var path = Path.Combine("inability_files", filePath);
+
+            var pathRes = await client.Storage
+                .From("inability_files")
+                .Upload(path, title);
+
+            if (pathRes == null)
+                return null;
+
+            InabilityFile file = new()
+            {
+                Title = req.Title,
+                FileName = title,
+                UserId = req.UserId,
+                InabilityId = req.InabilityId
+            };
+
+            // add to database
+            var res = await client
+                .From<InabilityFile>()
+                .Insert(file, new QueryOptions { Returning = QueryOptions.ReturnType.Representation });
+
+            return res.Models.FirstOrDefault();
+        }
     }
 }

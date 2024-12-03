@@ -12,5 +12,6 @@ namespace IncapacidadesSoluciones.Repositories
         Task<Inability> Update(Inability inability);
         Task<List<InabilityPaymentRes>> GetPaymentReport(string nit);
         Task<List<Notification>> GetNotifications(Guid id);
+        Task<InabilityFile> AddFile(AddFileReq req);
     }
 }

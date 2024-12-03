@@ -253,5 +253,25 @@ namespace IncapacidadesSoluciones.Controllers
                 );
             }
         }
+
+        [HttpPost("add-file"), Authorize(Roles = "COLABORADOR, GESTION_DOCUMENTAL, LIDER")]
+        public async Task<IActionResult> AddFile([FromForm] AddFileReq req)
+        {
+            try
+            {
+                var res = await inabilityService.AddFile(req);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new ApiRes<Inability>
+                    {
+                        Message = "Error interno al procesar la solicitud. " + ex.Message
+                    }
+                );
+            }
+        }
     }
 }
