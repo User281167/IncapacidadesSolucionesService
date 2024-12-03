@@ -233,5 +233,22 @@ namespace IncapacidadesSoluciones.Controllers
                 );
             }
         }
+
+        [HttpGet("notifications"), Authorize]
+        public async Task<IActionResult> GetNotifications(Guid id)
+        {
+            var res = await inabilityService.GetNotifications(id);
+
+            if (res.Success)
+                return Ok(res.Data);
+            else
+                return StatusCode(
+                    500,
+                    new ApiRes<List<Notification>>
+                    {
+                        Message = "Error interno al procesar la solicitud."
+                    }
+                );
+        }
     }
 }

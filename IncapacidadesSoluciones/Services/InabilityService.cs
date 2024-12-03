@@ -286,5 +286,15 @@ namespace IncapacidadesSoluciones.Services
 
             return new ApiRes<List<InabilityPaymentRes>>() { Success = true, Data = res };
         }
+
+        public async Task<ApiRes<List<Notification>>> GetNotifications(Guid id)
+        {
+            var res = await inabilityRepository.GetNotifications(id);
+
+            if (res == null)
+                return new ApiRes<List<Notification>>() { Message = "Error al obtener los datos." };
+
+            return new ApiRes<List<Notification>>() { Success = true, Data = res };
+        }
     }
 }
