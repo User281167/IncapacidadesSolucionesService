@@ -4,6 +4,7 @@ using IncapacidadesSoluciones.Dto.UserDto;
 using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Repositories;
 using IncapacidadesSoluciones.Services;
+using IncapacidadesSoluciones.Utilities.Role;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -61,6 +62,91 @@ namespace TestIncapacidadesSoluciones
             Assert.NotNull(apiRes);
             Assert.True(apiRes.Success);
             Assert.Equal(apiRes.Data.Name, user.Name);
+        }
+
+        [Fact]
+        public async void GetUserInfo_Ok()
+        {
+            User user = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                CompanyNIT = "123"
+            };
+
+            User leader = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                CompanyNIT = "123",
+                Role = UserRoleFactory.GetRoleName(USER_ROLE.LEADER)
+            };
+
+
+            userRepository.Setup(repo => repo.GetById(leader.Id)).ReturnsAsync(leader);
+            userRepository.Setup(repo => repo.GetById(user.Id)).ReturnsAsync(user);
+
+            var res = await userController.GetUserInfo(user.Id, leader.Id);
+            var ok = Assert.IsType<OkObjectResult>(res);
+            var apiRes = ok.Value as ApiRes<User>;
+
+            Assert.NotNull(apiRes);
+            Assert.True(apiRes.Success);
+            Assert.NotNull(apiRes.Data);
+            Assert.Equal(apiRes.Data.Name, user.Name);
+        }
+
+        [Fact]
+        public async void SearchUser_ErrorRole()
+        {
+            User user = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                CompanyNIT = "123"
+            };
+
+            User leader = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                CompanyNIT = "123",
+                Role = UserRoleFactory.GetRoleName(USER_ROLE.COLLABORATOR)
+            };
+
+            userRepository.Setup(repo => repo.GetById(leader.Id)).ReturnsAsync(leader);
+
+            var res = await userController.SearchUser(leader.Id, null, null, null);
+            var bad = Assert.IsType<BadRequestObjectResult>(res);
+            var apiRes = (res as BadRequestObjectResult)?.Value as ApiRes<List<User>>;
+
+            Assert.NotNull(apiRes);
+            Assert.Equal("No tienes permisos para realizar esta operación.", apiRes.Message);
+        }
+
+        [Fact]
+        public async void SearchUser_Ok()
+        {
+            User user = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000001"),
+                CompanyNIT = "123"
+            };
+
+            User leader = new()
+            {
+                Id = new Guid("00000000-0000-0000-0000-000000000002"),
+                CompanyNIT = "123",
+                Role = UserRoleFactory.GetRoleName(USER_ROLE.LEADER)
+            };
+
+            userRepository.Setup(repo => repo.GetById(leader.Id)).ReturnsAsync(leader);
+            userRepository.Setup(repo => repo.GetById(user.Id)).ReturnsAsync(user);
+            userRepository.Setup(repo => repo.GetByNameOrCedula(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>()
+            )).ReturnsAsync(new List<User>());
+
+            var res = await userController.SearchUser(leader.Id, null, null, null);
+            Assert.IsType<OkObjectResult>(res);
         }
     }
 }

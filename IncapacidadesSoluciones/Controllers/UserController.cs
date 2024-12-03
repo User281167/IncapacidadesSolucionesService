@@ -81,8 +81,8 @@ namespace IncapacidadesSoluciones.Controllers
             }
         }
 
-        [HttpGet("serach-collaborator"), Authorize]
-        public async Task<IActionResult> SearchCollaboratorByNameOrCedula(Guid searchBy, string? name, string? lastName, string? cedula)
+        [HttpGet("search-collaborator"), Authorize]
+        public async Task<IActionResult> SearchCollaborator(Guid searchBy, string? name, string? lastName, string? cedula)
         {
             try
             {
