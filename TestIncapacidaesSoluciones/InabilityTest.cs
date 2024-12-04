@@ -532,5 +532,69 @@ namespace TestIncapacidadesSoluciones
             Assert.True(apiRes.Success);
             Assert.NotNull(apiRes.Data);
         }
+
+        [Fact]
+        public async void AddFile_IdError()
+        {
+            // user.id and inability.id are different
+            // Given
+            inabilityRepository.Setup(
+                repo => repo.GetById(It.IsAny<Guid>())
+            ).ReturnsAsync(new Inability());
+
+            inabilityRepository.Setup(
+                repo => repo.AddFile(It.IsAny<AddFileReq>())
+            ).ReturnsAsync(new InabilityFile());
+
+            var req = new AddFileReq()
+            {
+                InabilityId = new Guid("00000000-0000-0000-0000-000000000001"),
+                Title = "file.pdf",
+                UserId = new Guid("00000000-0000-0000-0000-000000000001")
+            };
+
+            // When
+            var res = await inabilityController.AddFile(req);
+
+            // Then
+            var bad = Assert.IsType<BadRequestObjectResult>(res);
+            var apiRes = bad.Value as ApiRes<InabilityFile>;
+            Assert.NotNull(apiRes);
+            Assert.Equal("El usuario no es el responsable de la incapacidad.", apiRes.Message);
+        }
+
+        [Fact]
+        public async void AddFile_Ok()
+        {
+            // user.id and inability.id are different
+            // Given
+            inabilityRepository.Setup(
+                repo => repo.GetById(It.IsAny<Guid>())
+            ).ReturnsAsync(new Inability()
+            {
+                CollaboratorId = new Guid("00000000-0000-0000-0000-000000000001")
+            });
+
+            inabilityRepository.Setup(
+                repo => repo.AddFile(It.IsAny<AddFileReq>())
+            ).ReturnsAsync(new InabilityFile());
+
+            var req = new AddFileReq()
+            {
+                InabilityId = new Guid("00000000-0000-0000-0000-000000000001"),
+                Title = "file.pdf",
+                UserId = new Guid("00000000-0000-0000-0000-000000000001")
+            };
+
+            // When
+            var res = await inabilityController.AddFile(req);
+
+            // Then
+            var ok = Assert.IsType<OkObjectResult>(res);
+            var apiRes = ok.Value as ApiRes<InabilityFile>;
+            Assert.NotNull(apiRes);
+            Assert.True(apiRes.Success);
+            Assert.NotNull(apiRes.Data);
+        }
     }
 }

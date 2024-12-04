@@ -306,7 +306,7 @@ namespace IncapacidadesSoluciones.Services
                 if (inability == null)
                     return new ApiRes<InabilityFile>() { Message = "No se encuentra la incapacidad por el ID dado." };
                 else if (req.UserId != inability.CollaboratorId)
-                    return new ApiRes<InabilityFile>() { Message = "No tienes permisos para realizar esta operación." };
+                    return new ApiRes<InabilityFile>() { Message = "El usuario no es el responsable de la incapacidad." };
             }
 
             var res = await inabilityRepository.AddFile(req);
