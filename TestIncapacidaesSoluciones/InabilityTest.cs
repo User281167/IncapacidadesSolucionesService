@@ -615,5 +615,25 @@ namespace TestIncapacidadesSoluciones
             Assert.True(apiRes.Success);
             Assert.NotNull(apiRes.Data);
         }
+
+
+        [Fact]
+        public async void GetFile()
+        {
+            // Given
+            inabilityRepository.Setup(
+                repo => repo.GetFile(It.IsAny<string>())
+            ).ReturnsAsync("https://test.com");
+
+            // When
+            var res = await inabilityController.GetFile("test.pdf");
+
+            // Then
+            var ok = Assert.IsType<OkObjectResult>(res);
+            var apiRes = ok.Value as ApiRes<string>;
+            Assert.NotNull(apiRes);
+            Assert.True(apiRes.Success);
+            Assert.NotNull(apiRes.Data);
+        }
     }
 }
