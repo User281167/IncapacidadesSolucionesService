@@ -171,5 +171,15 @@ namespace IncapacidadesSoluciones.Repositories
 
             return res.Models.FirstOrDefault();
         }
+
+        public async Task<List<InabilityFile>> GetFiles(Guid id)
+        {
+            var res = await client
+                .From<InabilityFile>()
+                .Where(x => x.InabilityId == id)
+                .Get();
+
+            return res.Models;
+        }
     }
 }

@@ -316,5 +316,14 @@ namespace IncapacidadesSoluciones.Services
 
             return new ApiRes<InabilityFile>() { Success = true, Data = res };
         }
+
+        public async Task<ApiRes<List<InabilityFile>>> GetFiles(Guid id)
+        {
+            // return url
+            var res = await inabilityRepository.GetFiles(id);
+            return res == null ?
+            new ApiRes<List<InabilityFile>>() { Message = "No se encontraron archivos." } :
+            new ApiRes<List<InabilityFile>>() { Success = true, Data = res };
+        }
     }
 }
