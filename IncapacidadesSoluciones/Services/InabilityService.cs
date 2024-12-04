@@ -325,5 +325,18 @@ namespace IncapacidadesSoluciones.Services
             new ApiRes<List<InabilityFile>>() { Message = "No se encontraron archivos." } :
             new ApiRes<List<InabilityFile>>() { Success = true, Data = res };
         }
+
+        public async Task<ApiRes<string>> GetFile(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+                return new ApiRes<string>() { Message = "No se encontraron archivos." };
+
+            // return supabase url
+            var res = await inabilityRepository.GetFile(fileName);
+
+            return res == null ?
+            new ApiRes<string>() { Message = "No se encontraron archivos." } :
+            new ApiRes<string>() { Success = true, Data = res };
+        }
     }
 }

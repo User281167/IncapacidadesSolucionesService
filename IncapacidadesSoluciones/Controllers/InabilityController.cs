@@ -293,5 +293,25 @@ namespace IncapacidadesSoluciones.Controllers
                 );
             }
         }
+
+        [HttpGet("file"), Authorize(Roles = "COLABORADOR, GESTION_DOCUMENTAL, LIDER")]
+        public async Task<IActionResult> GetFile(string fileName)
+        {
+            try
+            {
+                var res = await inabilityService.GetFile(fileName);
+                return res.Success ? Ok(res) : BadRequest(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new ApiRes<List<InabilityFile>>
+                    {
+                        Message = "Error interno al procesar la solicitud. " + ex.Message
+                    }
+                );
+            }
+        }
     }
 }

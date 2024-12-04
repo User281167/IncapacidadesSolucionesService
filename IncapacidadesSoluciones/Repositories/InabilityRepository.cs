@@ -8,6 +8,8 @@ namespace IncapacidadesSoluciones.Repositories
 {
     public class InabilityRepository : IInabilityRepository
     {
+        private readonly string FILES_BUCKET = "inability_files";
+
         private readonly Supabase.Client client;
 
         public InabilityRepository(Supabase.Client client)
@@ -147,10 +149,10 @@ namespace IncapacidadesSoluciones.Repositories
                 await req.File.CopyToAsync(stream);
             }
 
-            var path = Path.Combine("inability_files", filePath);
+            var path = Path.Combine(FILES_BUCKET, filePath);
 
             var pathRes = await client.Storage
-                .From("inability_files")
+                .From(FILES_BUCKET)
                 .Upload(path, title);
 
             if (pathRes == null)
@@ -180,6 +182,14 @@ namespace IncapacidadesSoluciones.Repositories
                 .Get();
 
             return res.Models;
+        }
+
+        public async Task<string> GetFile(string fileName)
+        {
+            return await client
+                .Storage
+                .From(FILES_BUCKET)
+                .CreateSignedUrl(fileName, 3600);
         }
     }
 }

@@ -14,5 +14,6 @@ namespace IncapacidadesSoluciones.Repositories
         Task<List<Notification>> GetNotifications(Guid id);
         Task<InabilityFile> AddFile(AddFileReq req);
         Task<List<InabilityFile>> GetFiles(Guid id);
+        Task<string> GetFile(string fileName);
     }
 }
