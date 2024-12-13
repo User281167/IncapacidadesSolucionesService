@@ -1,7 +1,6 @@
 ﻿using IncapacidadesSoluciones.Dto;
 using IncapacidadesSoluciones.Dto.auth;
 using IncapacidadesSoluciones.Dto.Company;
-using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Services;
 using IncapacidadesSoluciones.Utilities.Role;
 using Microsoft.AspNetCore.Authorization;
@@ -11,14 +10,11 @@ namespace IncapacidadesSoluciones.Controllers
 {
     [ApiController]
     [Route("/api/[controller]")]
-    public class AuthController : ControllerBase
+    public class AuthController(
+        AuthService authService
+    ) : ApiControllerBase
     {
-        private readonly AuthService authService;
-
-        public AuthController(AuthService authService)
-        {
-            this.authService = authService;
-        }
+        private readonly AuthService authService = authService;
 
         [HttpPost("signup-company")]
         public async Task<IActionResult> RegisterCompany(AuthCompanyReq req)
@@ -26,13 +22,23 @@ namespace IncapacidadesSoluciones.Controllers
             if (req == null)
                 return BadRequest("La información no puede ser nula.");
 
-            var res = await authService.RegisterCompany(req);
+            try
+            {
+                var res = await authService.RegisterCompany(req);
 
-            // Error creating a new user, can fail creating company
-            if (!string.IsNullOrEmpty(res.ErrorMessage) && res.User == null)
-                return BadRequest(res.ErrorMessage);
+                // Error creating a new user, can fail creating company
+                if (!string.IsNullOrEmpty(res.ErrorMessage) && res.User == null)
+                    return BadRequest(res.ErrorMessage);
 
-            return Ok(res);
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    "Error interno al procesar la petición."
+                );
+            }
         }
 
         [HttpPut("update-company"), Authorize(Roles = "LIDER")]
@@ -58,27 +64,31 @@ namespace IncapacidadesSoluciones.Controllers
             if (req == null)
                 return BadRequest("La información no puede ser nula.");
 
-            var res = await authService.RegisterUser(req, USER_ROLE.COLLABORATOR);
+            try
+            {
+                var res = await authService.RegisterUser(req, USER_ROLE.COLLABORATOR);
 
-            // Error creating a new user
-            if (!string.IsNullOrEmpty(res.ErrorMessage) && res.User == null)
-                return BadRequest(res.ErrorMessage);
+                // Error creating a new user
+                if (!string.IsNullOrEmpty(res.ErrorMessage) && res.User == null)
+                    return BadRequest(res.ErrorMessage);
 
-            return Ok(res);
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    "Error interno al procesar la petición."
+                );
+            }
         }
 
         [HttpPost("generate-access-code"), Authorize(Roles = "LIDER")]
         public async Task<IActionResult> AddAccessCode(AuthAccessCodeReq req)
         {
-            if (req == null)
-                return BadRequest("La información no puede ser nula.");
-
-            var res = await authService.UpdateAccessCode(req);
-
-            if (!res.Success)
-                return BadRequest(res.Message);
-
-            return Ok(res);
+            return await HandleServiceCall(
+                async () => await authService.UpdateAccessCode(req)
+            );
         }
 
         [HttpPost("login")]
@@ -87,12 +97,22 @@ namespace IncapacidadesSoluciones.Controllers
             if (req == null)
                 return BadRequest("La información no puede ser nula.");
 
-            var res = await authService.Login(req);
+            try
+            {
+                var res = await authService.Login(req);
 
-            if (!string.IsNullOrEmpty(res.ErrorMessage) && res.User == null)
-                return BadRequest(res.ErrorMessage);
+                if (!string.IsNullOrEmpty(res.ErrorMessage) && res.User == null)
+                    return BadRequest(res.ErrorMessage);
 
-            return Ok(res);
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    "Error interno al procesar la petición."
+                );
+            }
         }
 
         [HttpGet("validate-token")]
@@ -118,62 +138,25 @@ namespace IncapacidadesSoluciones.Controllers
                 });
             }
 
-            try
-            {
-                ApiRes<User> res = await authService.CreateRole(req);
-                return res.Success ? Ok(res) : BadRequest(res);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(
-                    500,
-                    new ApiRes<User>
-                    {
-                        Message = "Error interno al procesar la petición."
-                    }
-                );
-            }
+            return await HandleServiceCall(
+                async () => await authService.CreateRole(req)
+            );
         }
 
         [HttpPut("update-role"), Authorize(Roles = "LIDER")]
         public async Task<IActionResult> UpdateRole(AuthRoleReq req)
         {
-            try
-            {
-                var res = await authService.UpdateRole(req);
-                return res.Success ? Ok(res) : BadRequest(res);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(
-                    500,
-                    new ApiRes<User>
-                    {
-                        Message = "Error interno al procesar la petición."
-                    }
-                );
-            }
+            return await HandleServiceCall(
+                async () => await authService.UpdateRole(req)
+            );
         }
 
         [HttpDelete("delete-role"), Authorize(Roles = "LIDER")]
         public async Task<IActionResult> DeleteRole(DeleteAuthReq req)
         {
-            try
-            {
-                var res = await authService.DeleteRole(req);
-                return res.Success ? Ok(res) : BadRequest(res);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(
-                    500,
-                    new ApiRes<bool>
-                    {
-                        Message = "Error interno al procesar la petición.",
-                        Data = false
-                    }
-                );
-            }
+            return await HandleServiceCall(
+                async () => await authService.DeleteRole(req)
+            );
         }
     }
 }

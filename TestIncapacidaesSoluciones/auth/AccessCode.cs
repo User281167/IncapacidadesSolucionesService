@@ -17,9 +17,10 @@ namespace TestIncapacidadesSoluciones.auth
         AuthService authService;
         AuthController authController;
 
-        AuthAccessCodeReq code = new AuthAccessCodeReq { Id = new Guid(), CompanyId = new Guid()};
+        AuthAccessCodeReq code = new AuthAccessCodeReq { Id = new Guid(), CompanyId = new Guid() };
 
-        public AccessCodeTest() { 
+        public AccessCodeTest()
+        {
             accessCodeRepository = new Mock<IAccessCodeRepository>();
             companyRepository = new Mock<ICompanyRepository>();
             authService = new AuthService(null, companyRepository.Object, accessCodeRepository.Object);
@@ -46,7 +47,9 @@ namespace TestIncapacidadesSoluciones.auth
 
             // Assert
             var bad = Assert.IsType<BadRequestObjectResult>(res);
-            Assert.Equal("No se pudo encontrar la empresa.", bad.Value);
+            var apiRes = bad.Value as ApiRes<AccessCode>;
+            Assert.NotNull(apiRes);
+            Assert.Equal("No se pudo encontrar la empresa.", apiRes.Message);
         }
 
         [Fact]
