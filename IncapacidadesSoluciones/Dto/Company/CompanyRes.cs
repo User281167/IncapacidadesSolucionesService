@@ -1,6 +1,4 @@
-﻿using IncapacidadesSoluciones.Models;
-
-namespace IncapacidadesSoluciones.Dto.Company
+﻿namespace IncapacidadesSoluciones.Dto.Company
 {
     public class CompanyRes
     {

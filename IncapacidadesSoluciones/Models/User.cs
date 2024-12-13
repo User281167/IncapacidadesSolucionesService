@@ -8,11 +8,11 @@ using IncapacidadesSoluciones.Dto.auth;
 namespace IncapacidadesSoluciones.Models
 {
     [@Table("usuarios")]
-    public class User: BaseModel
+    public class User : BaseModel
     {
         [@PrimaryKey("id", false)]
         public Guid Id { get; set; }
-        
+
         [@Column("nombres")]
         public string Name { get; set; }
 

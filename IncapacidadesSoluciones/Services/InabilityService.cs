@@ -3,7 +3,6 @@ using IncapacidadesSoluciones.Dto.Inability;
 using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Repositories;
 using IncapacidadesSoluciones.Utilities;
-using IncapacidadesSoluciones.Utilities.Role;
 
 namespace IncapacidadesSoluciones.Services
 {

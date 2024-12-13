@@ -8,7 +8,7 @@ namespace IncapacidadesSoluciones.Dto.auth
 
         [Required(ErrorMessage = "El id de la empresa es requerido")]
         public Guid CompanyId { get; set; }
-        
+
         public DateOnly ExpirationDate { get; set; }
     }
 }
