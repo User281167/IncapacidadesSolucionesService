@@ -34,17 +34,23 @@ namespace TestIncapacidaesSoluciones
             Sector = "test"
         };
 
-        private readonly AuthUserReq userTest = new AuthUserReq
+        private readonly AuthCompanyReq authCompanyReq = new()
         {
-            AccessCode = "test",
+            Nit = "test",
             Name = "test",
-            LastName = "test",
-            Phone = "test",
-            Cedula = "test",
+            Description = "test",
             Email = "test@test.com",
+            Founded = DateOnly.FromDateTime(DateTime.Now),
+            Address = "test",
+            Type = "test",
+            Sector = "test",
+            LeaderName = "test",
+            LeaderLastName = "test",
+            LeaderCedula = "test",
+            LeaderPhone = "test",
+            LeaderEmail = "test@test.com",
             Password = "test"
         };
-
 
         public AuthCompany()
         {
@@ -56,7 +62,6 @@ namespace TestIncapacidaesSoluciones
             authController = new AuthController(authService);
             environmentMock = new Mock<IEnvironmentWrapper>();
         }
-
 
         [Fact]
         public async void RegisterCompanyAndLeader_Req_Null()
@@ -70,13 +75,9 @@ namespace TestIncapacidaesSoluciones
         public async void RegisterCompanyAndLeader_UserExists_BadRequest()
         {
             // Arrange
-            var req = new AuthCompanyReq
-            {
-                Company = companyTets,
-                Leader = userTest
-            };
+            var req = authCompanyReq;
 
-            userRepository.Setup(repo => repo.UserExists(req.Leader.Email, req.Leader.Cedula)).ReturnsAsync(true);
+            userRepository.Setup(repo => repo.UserExists(req.LeaderEmail, req.LeaderCedula)).ReturnsAsync(true);
 
             // Act
             var res = await authController.RegisterCompany(req);
@@ -90,13 +91,9 @@ namespace TestIncapacidaesSoluciones
         public async void RegisterCompanyAndLeader_CompanyExists_BadRequest()
         {
             // Arrange
-            var req = new AuthCompanyReq
-            {
-                Company = companyTets,
-                Leader = userTest
-            };
+            var req = authCompanyReq;
 
-            companyRepository.Setup(repo => repo.CompanyExists(req.Company.Nit)).ReturnsAsync(true);
+            companyRepository.Setup(repo => repo.CompanyExists(req.Nit)).ReturnsAsync(true);
 
             // Act
             var res = await authController.RegisterCompany(req);
@@ -110,11 +107,7 @@ namespace TestIncapacidaesSoluciones
         public async void RegisterCompanyAndLeader_CompanyType_BadRequest()
         {
             // Arrange
-            var req = new AuthCompanyReq
-            {
-                Company = companyTets,
-                Leader = userTest
-            };
+            var req = authCompanyReq;
 
             // Act
             var res = await authController.RegisterCompany(req);
@@ -128,14 +121,8 @@ namespace TestIncapacidaesSoluciones
         public async void RegisterCompanyAndLeader_CompanySector_BadRequest()
         {
             // Arrange
-            var company = companyTets;
-            company.Type = CompanyTypeFactory.GetCompanyType(COMPANY_TYPE.SMALL);
-
-            var req = new AuthCompanyReq
-            {
-                Company = company,
-                Leader = userTest
-            };
+            var req = authCompanyReq;
+            req.Type = CompanyTypeFactory.GetCompanyType(COMPANY_TYPE.SMALL);
 
             // Act
             var res = await authController.RegisterCompany(req);
@@ -149,15 +136,9 @@ namespace TestIncapacidaesSoluciones
         public async void RegisterCompanyAndLeader_SignUp_BadRequest()
         {
             // Arrange
-            var company = companyTets;
-            company.Type = CompanyTypeFactory.GetCompanyType(COMPANY_TYPE.SMALL);
-            company.Sector = CompanySectorFactory.GetCompanySector(COMPANY_SECTOR.PRIMARY);
-
-            var req = new AuthCompanyReq
-            {
-                Company = company,
-                Leader = userTest
-            };
+            var req = authCompanyReq;
+            req.Type = CompanyTypeFactory.GetCompanyType(COMPANY_TYPE.SMALL);
+            req.Sector = CompanySectorFactory.GetCompanySector(COMPANY_SECTOR.PRIMARY);
 
             // Act
             var res = await authController.RegisterCompany(req);
@@ -171,17 +152,11 @@ namespace TestIncapacidaesSoluciones
         public async void RegisterCompanyAndLeader_Leader_BadRequest()
         {
             // Arrange
-            var company = companyTets;
-            company.Type = CompanyTypeFactory.GetCompanyType(COMPANY_TYPE.SMALL);
-            company.Sector = CompanySectorFactory.GetCompanySector(COMPANY_SECTOR.PRIMARY);
+            var req = authCompanyReq;
+            req.Type = CompanyTypeFactory.GetCompanyType(COMPANY_TYPE.SMALL);
+            req.Sector = CompanySectorFactory.GetCompanySector(COMPANY_SECTOR.PRIMARY);
 
-            var req = new AuthCompanyReq
-            {
-                Company = company,
-                Leader = userTest
-            };
-
-            userRepository.Setup(repo => repo.SignUp(req.Leader.Email, req.Leader.Password)).ReturnsAsync(new User());
+            userRepository.Setup(repo => repo.SignUp(req.LeaderEmail, req.Password)).ReturnsAsync(new User());
             userRepository.Setup(repo => repo.UpdateByEmail(new User())).ReturnsAsync(new User());
 
             // Act
@@ -198,28 +173,22 @@ namespace TestIncapacidaesSoluciones
             // Arrange
             Environment.SetEnvironmentVariable("JWT_KEY", EnvironmentWrapper.JWT_KEY_TEST);
 
-            var company = companyTets;
-            company.Type = CompanyTypeFactory.GetCompanyType(COMPANY_TYPE.SMALL);
-            company.Sector = CompanySectorFactory.GetCompanySector(COMPANY_SECTOR.PRIMARY);
-
-            var req = new AuthCompanyReq
-            {
-                Company = company,
-                Leader = userTest
-            };
+            var req = authCompanyReq;
+            req.Type = CompanyTypeFactory.GetCompanyType(COMPANY_TYPE.SMALL);
+            req.Sector = CompanySectorFactory.GetCompanySector(COMPANY_SECTOR.PRIMARY);
 
             var user = new User
             {
                 Id = new Guid(),
-                Name = req.Leader.Name,
-                LastName = req.Leader.LastName,
-                Phone = req.Leader.Phone,
-                Cedula = req.Leader.Cedula,
-                Email = req.Leader.Email
+                Name = req.LeaderName,
+                LastName = req.LeaderLastName,
+                Phone = req.LeaderPhone,
+                Cedula = req.LeaderCedula,
+                Email = req.LeaderEmail
             };
 
             environmentMock.Setup(env => env.GetEnvironmentVariable("JWT_KEY")).Returns(EnvironmentWrapper.JWT_KEY_TEST);
-            userRepository.Setup(repo => repo.SignUp(req.Leader.Email, req.Leader.Password)).ReturnsAsync(user);
+            userRepository.Setup(repo => repo.SignUp(req.LeaderEmail, req.Password)).ReturnsAsync(user);
             userRepository.Setup(repo => repo.UpdateByEmail(It.IsAny<User>())).ReturnsAsync(user);
 
             // Act
@@ -244,28 +213,22 @@ namespace TestIncapacidaesSoluciones
             // Arrange
             Environment.SetEnvironmentVariable("JWT_KEY", EnvironmentWrapper.JWT_KEY_TEST);
 
-            var company = companyTets;
-            company.Type = CompanyTypeFactory.GetCompanyType(COMPANY_TYPE.SMALL);
-            company.Sector = CompanySectorFactory.GetCompanySector(COMPANY_SECTOR.PRIMARY);
-
-            var req = new AuthCompanyReq
-            {
-                Company = company,
-                Leader = userTest
-            };
+            var req = authCompanyReq;
+            req.Type = CompanyTypeFactory.GetCompanyType(COMPANY_TYPE.SMALL);
+            req.Sector = CompanySectorFactory.GetCompanySector(COMPANY_SECTOR.PRIMARY);
 
             var user = new User
             {
                 Id = new Guid(),
-                Name = req.Leader.Name,
-                LastName = req.Leader.LastName,
-                Phone = req.Leader.Phone,
-                Cedula = req.Leader.Cedula,
-                Email = req.Leader.Email
+                Name = req.LeaderName,
+                LastName = req.LeaderLastName,
+                Phone = req.LeaderPhone,
+                Cedula = req.LeaderCedula,
+                Email = req.LeaderEmail
             };
 
             environmentMock.Setup(env => env.GetEnvironmentVariable("JWT_KEY")).Returns(EnvironmentWrapper.JWT_KEY_TEST);
-            userRepository.Setup(repo => repo.SignUp(req.Leader.Email, req.Leader.Password)).ReturnsAsync(user);
+            userRepository.Setup(repo => repo.SignUp(req.LeaderEmail, req.Password)).ReturnsAsync(user);
             userRepository.Setup(repo => repo.UpdateByEmail(It.IsAny<User>())).ReturnsAsync(user);
             companyRepository.Setup(repo => repo.Insert(It.IsAny<Company>())).ReturnsAsync(new Company());
 

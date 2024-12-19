@@ -23,41 +23,41 @@ namespace IncapacidadesSoluciones.Services
 
         public async Task<AuthRes> RegisterCompany(AuthCompanyReq req)
         {
-            if (await userRepository.UserExists(req.Leader.Email, req.Leader.Cedula))
+            if (await userRepository.UserExists(req.LeaderEmail, req.LeaderCedula))
                 return new AuthRes { ErrorMessage = "Ya existe un usuario con ese correo o cédula registrado" };
-            if (await companyRepository.CompanyExists(req.Company.Nit))
+            if (await companyRepository.CompanyExists(req.Nit))
                 return new AuthRes { ErrorMessage = "Ya existe una empresa con ese nit registrado" };
-            if (!CompanyTypeFactory.IsValid(req.Company.Type))
+            if (!CompanyTypeFactory.IsValid(req.Type))
                 return new AuthRes { ErrorMessage = "Tipo de empresa inválido" };
-            if (!CompanySectorFactory.IsValid(req.Company.Sector))
+            if (!CompanySectorFactory.IsValid(req.Sector))
                 return new AuthRes { ErrorMessage = "Sector de la empresa inválido" };
 
             try
             {
-                var user = await userRepository.SignUp(req.Leader.Email, req.Leader.Password);
+                var user = await userRepository.SignUp(req.LeaderEmail, req.Password);
 
                 if (user == null)
                     return new AuthRes { ErrorMessage = "Error al registrar el usuario y compañia" };
 
                 Company company = new Company
                 {
-                    Nit = req.Company.Nit,
-                    Name = req.Company.Name,
-                    Description = req.Company.Description,
-                    Email = req.Company.Email,
-                    Founded = req.Company.Founded ?? null,
-                    Address = req.Company.Address,
-                    Type = req.Company.Type.ToLower(),
-                    Sector = req.Company.Sector.ToLower(),
+                    Nit = req.Nit,
+                    Name = req.Name,
+                    Description = req.Description ?? "",
+                    Email = req.Email,
+                    Founded = req.Founded ?? null,
+                    Address = req.Address ?? "",
+                    Type = req.Type.ToLower(),
+                    Sector = req.Sector.ToLower(),
                     LeaderId = user.Id
                 };
 
                 var companyRes = await companyRepository.Insert(company);
 
-                user.Name = req.Leader.Name;
-                user.LastName = req.Leader.LastName;
-                user.Phone = req.Leader.Phone;
-                user.Cedula = req.Leader.Cedula;
+                user.Name = req.LeaderName;
+                user.LastName = req.LeaderLastName;
+                user.Phone = req.LeaderPhone ?? "";
+                user.Cedula = req.LeaderCedula;
                 user.CompanyNIT = companyRes?.Nit ?? "";
                 user.Role = UserRoleFactory.GetRoleName(USER_ROLE.LEADER);
 

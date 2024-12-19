@@ -4,7 +4,7 @@ namespace IncapacidadesSoluciones.Dto.auth
 {
     public class AuthUserReq
     {
-        //[Required(ErrorMessage = "El campo {0} es requerido")]
+        [Required(ErrorMessage = "El campo {0} es requerido")]
         public string AccessCode { get; set; }
 
         [Required(ErrorMessage = "El campo {0} es requerido y debe comenzar con una letra"), MinLength(3), MaxLength(50)]
