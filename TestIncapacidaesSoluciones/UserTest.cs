@@ -238,5 +238,16 @@ namespace TestIncapacidadesSoluciones
             Assert.True(apiRes.Success);
             Assert.NotNull(apiRes.Data);
         }
+
+        [Fact]
+        public async void GetCollaborator_Ok()
+        {
+            userRepository.Setup(
+                repo => repo.GetCollaboratorById(It.IsAny<Guid>())
+            ).ReturnsAsync(new Collaborator());
+
+            var res = await userController.GetCollaborator(new Guid());
+            Assert.IsType<OkObjectResult>(res);
+        }
     }
 }

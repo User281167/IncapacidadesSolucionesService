@@ -119,6 +119,16 @@ namespace IncapacidadesSoluciones.Services
             return new ApiRes<List<UserInfoRes>>() { Success = true, Data = res };
         }
 
+        public async Task<ApiRes<Collaborator>> GetCollaborator(Guid id)
+        {
+            Collaborator user = await userRepository.GetCollaboratorById(id);
+
+            if (user == null)
+                return new ApiRes<Collaborator>() { Message = "No se encuentra el usuario por el ID dado." };
+
+            return new ApiRes<Collaborator>() { Success = true, Data = user };
+        }
+
         public async Task<ApiRes<List<User>>> GetSpecialRoles(Guid leaderId)
         {
             User leader = await userRepository.GetById(leaderId);

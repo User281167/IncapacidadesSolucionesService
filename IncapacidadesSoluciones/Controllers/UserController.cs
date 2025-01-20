@@ -48,6 +48,14 @@ namespace IncapacidadesSoluciones.Controllers
             );
         }
 
+        [HttpGet("collaborator"), Authorize]
+        public async Task<IActionResult> GetCollaborator(Guid id)
+        {
+            return await HandleServiceCall(
+                async () => await userService.GetCollaborator(id)
+            );
+        }
+
         [HttpGet("special-roles"), Authorize(Roles = "LIDER")]
         public async Task<IActionResult> GetSpecialRoles(Guid leaderId)
         {
