@@ -22,5 +22,7 @@ namespace IncapacidadesSoluciones.Repositories
         Task<List<User>> GetSpecialRoles(string nit);
         Task<List<Notification>> GetNotifications(Guid id);
         Task<Notification> AddNotification(Notification notification);
+        Task<string> UpdatePhoto(Guid userId, IFormFile file);
+        Task<string> GetPhotoUrl(Guid userId);
     }
 }

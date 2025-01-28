@@ -24,6 +24,22 @@ namespace IncapacidadesSoluciones.Controllers
             );
         }
 
+        [HttpPut("update-photo"), Authorize]
+        public async Task<IActionResult> UpdatePhoto(Guid userId, IFormFile file)
+        {
+            return await HandleServiceCall(
+                async () => await userService.UpdatePhoto(userId, file)
+            );
+        }
+
+        [HttpGet("photo-url"), Authorize]
+        public async Task<IActionResult> GetPhotoUrl(Guid userId)
+        {
+            return await HandleServiceCall(
+                async () => await userService.GetPhotoUrl(userId)
+            );
+        }
+
         [HttpGet, Authorize]
         public async Task<IActionResult> GetUserInfo(Guid userId, Guid searchBy)
         {

@@ -37,6 +37,9 @@ namespace IncapacidadesSoluciones.Models
         [@Column("rol")]
         public string Role { get; set; }
 
+        [@Column("photo")]
+        public string? Photo { get; set; }
+
         public static User FromDto(CreateUserReq dto)
         {
             return new User

@@ -46,6 +46,34 @@ namespace IncapacidadesSoluciones.Services
             };
         }
 
+        public async Task<ApiRes<String>> UpdatePhoto(Guid userId, IFormFile file)
+        {
+            try
+            {
+                string path = await userRepository.UpdatePhoto(userId, file);
+
+                if (path == null)
+                    return new ApiRes<String>() { Message = "Error al actualizar la foto." };
+
+                return new ApiRes<String>() { Success = true, Data = path };
+
+            }
+            catch (Exception ex)
+            {
+                return new ApiRes<String>() { Message = "Error al actualizar la foto. Solo se aceptan archivos jpeg y png, máximo de 2MB." };
+            }
+        }
+
+        public async Task<ApiRes<String>> GetPhotoUrl(Guid userId)
+        {
+            string path = await userRepository.GetPhotoUrl(userId);
+
+            if (path == null)
+                return new ApiRes<String>() { Message = "Error al obtener la foto." };
+
+            return new ApiRes<String>() { Success = true, Data = path };
+        }
+
         public async Task<ApiRes<User>> GetUserInfo(Guid userId, Guid searchBy)
         {
             User userSpecial = await userRepository.GetById(searchBy);

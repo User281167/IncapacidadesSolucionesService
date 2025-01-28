@@ -1,14 +1,17 @@
 ﻿using IncapacidadesSoluciones.Dto.UserDto;
 using IncapacidadesSoluciones.Models;
 using IncapacidadesSoluciones.Utilities.Role;
-
 using Operator = Supabase.Postgrest.Constants.Operator;
 using QueryOptions = Supabase.Postgrest.QueryOptions;
+using FileOptions = Supabase.Storage.FileOptions;
+using Supabase.Storage;
 
 namespace IncapacidadesSoluciones.Repositories
 {
     public class UserRepository : IUserRepository
     {
+        private const string USER_IMAGES_BUCKET = "user_images";
+
         private readonly Supabase.Client client;
 
         public UserRepository(Supabase.Client client)
@@ -214,6 +217,89 @@ namespace IncapacidadesSoluciones.Repositories
                 .Insert(notification, new QueryOptions { Returning = QueryOptions.ReturnType.Representation });
 
             return res.Models.First();
+        }
+
+        public async Task<string> UpdatePhoto(Guid userId, IFormFile file)
+        {
+            if (file == null)
+                return null;
+
+            User user = await GetById(userId);
+
+            if (user == null)
+                return null;
+
+            string title = userId.ToString() + Path.GetExtension(file.FileName);
+            string filePath = Path.GetTempFileName() + Path.GetExtension(file.FileName);
+
+            using (FileStream stream = File.Create(filePath))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            string path = Path.Combine(USER_IMAGES_BUCKET, filePath);
+            string pathRes = null;
+
+            if (user.Photo == null)
+            {
+                pathRes = await client.Storage
+                    .From(USER_IMAGES_BUCKET)
+                    .Upload(path, title, new FileOptions { CacheControl = "3600", Upsert = true });
+            }
+            else
+            {
+                pathRes = await client
+                    .Storage
+                    .From(USER_IMAGES_BUCKET)
+                    .Update(path, title, new FileOptions { CacheControl = "3600", Upsert = true });
+            }
+
+            if (pathRes == null)
+                return null;
+
+            string publicUrl = client
+                .Storage
+                .From(USER_IMAGES_BUCKET)
+                .GetPublicUrl(title);
+
+            if (user.Photo != publicUrl)
+            {
+                user.Photo = publicUrl;
+                await Update(user);
+            }
+
+            return publicUrl;
+        }
+
+        public async Task<string> GetPhotoUrl(Guid userId)
+        {
+            User user = await GetById(userId);
+
+            if (user == null || string.IsNullOrEmpty(user.Photo))
+                return null;
+            else if (!string.IsNullOrEmpty(user.Photo))
+                return user.Photo;
+
+            List<FileObject> res = await client
+                .Storage
+                .From(USER_IMAGES_BUCKET)
+                .List() ?? [];
+
+            string userImg = res
+                .SingleOrDefault(
+                        f => f.Name?.Contains(userId.ToString()) ?? false
+                    )?.Name ?? "";
+
+            if (string.IsNullOrEmpty(userImg))
+                return null;
+
+            user.Photo = userImg;
+            await Update(user);
+
+            return client
+                .Storage
+                .From(USER_IMAGES_BUCKET)
+                .GetPublicUrl(userImg);
         }
     }
 }
