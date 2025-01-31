@@ -14,70 +14,72 @@ namespace IncapacidadesSoluciones.Services
         private readonly ICompanyRepository companyRepository;
         private readonly IAccessCodeRepository accessCodeRepository;
 
-        public AuthService(IUserRepository userRepository, ICompanyRepository companyRepository, IAccessCodeRepository loginCodeRepository)
+        public AuthService(IUserRepository userRepository, ICompanyRepository companyRepository, IAccessCodeRepository accessCodeRepository)
         {
             this.userRepository = userRepository;
             this.companyRepository = companyRepository;
-            this.accessCodeRepository = loginCodeRepository;
+            this.accessCodeRepository = accessCodeRepository;
         }
 
         public async Task<AuthRes> RegisterCompany(AuthCompanyReq req)
         {
             if (await userRepository.UserExists(req.LeaderEmail, req.LeaderCedula))
                 return new AuthRes { ErrorMessage = "Ya existe un usuario con ese correo o cédula registrado" };
-            if (await companyRepository.CompanyExists(req.Nit))
+            else if (await companyRepository.CompanyExists(req.Nit))
                 return new AuthRes { ErrorMessage = "Ya existe una empresa con ese nit registrado" };
-            if (!CompanyTypeFactory.IsValid(req.Type))
+            else if (!CompanyTypeFactory.IsValid(req.Type))
                 return new AuthRes { ErrorMessage = "Tipo de empresa inválido" };
-            if (!CompanySectorFactory.IsValid(req.Sector))
+            else if (!CompanySectorFactory.IsValid(req.Sector))
                 return new AuthRes { ErrorMessage = "Sector de la empresa inválido" };
 
             try
             {
-                var user = await userRepository.SignUp(req.LeaderEmail, req.Password);
+                User user = await userRepository.SignUp(req.LeaderEmail, req.Password);
 
                 if (user == null)
-                    return new AuthRes { ErrorMessage = "Error al registrar el usuario y compañia" };
+                    return new AuthRes { ErrorMessage = "Error al registrar el usuario y empresa." };
 
-                Company company = new Company
+                Company company = new()
                 {
                     Nit = req.Nit,
                     Name = req.Name,
-                    Description = req.Description ?? "",
+                    Description = req.Description,
                     Email = req.Email,
-                    Founded = req.Founded ?? null,
-                    Address = req.Address ?? "",
+                    Founded = req.Founded,
+                    Address = req.Address,
                     Type = req.Type.ToLower(),
                     Sector = req.Sector.ToLower(),
                     LeaderId = user.Id
                 };
 
-                var companyRes = await companyRepository.Insert(company);
-
                 user.Name = req.LeaderName;
                 user.LastName = req.LeaderLastName;
-                user.Phone = req.LeaderPhone ?? "";
+                user.Phone = req.LeaderPhone;
                 user.Cedula = req.LeaderCedula;
-                user.CompanyNIT = companyRes?.Nit ?? "";
+                user.CompanyNIT = company.Nit;
                 user.Role = UserRoleFactory.GetRoleName(USER_ROLE.LEADER);
 
-                var res = await userRepository.UpdateByEmail(user);
+                Task<Company> insertingCompany = companyRepository.Insert(company);
+                Task<User> updatingUser = userRepository.UpdateByEmail(user);
 
-                if (res == null)
-                    return new AuthRes { ErrorMessage = "Error no se pudo crear el usuario lider" };
+                User updateUser = await updatingUser;
+                Company companyInsert = await insertingCompany;
+
+                if (updateUser == null)
+                    return new AuthRes { ErrorMessage = "Error no se pudo crear el usuario líder" };
 
                 return new AuthRes
                 {
-                    Token = JWT.CreateToken(res, USER_ROLE.LEADER),
-                    User = res,
-                    ErrorMessage = companyRes == null ? "Error al registrar la compañia" : ""
+                    Token = JWT.CreateToken(updateUser, USER_ROLE.LEADER),
+                    User = updateUser,
+                    ErrorMessage = companyInsert == null ? "Error al registrar la empresa" : ""
                 };
             }
             catch (Exception ex)
             {
                 return new AuthRes
                 {
-                    ErrorMessage = "Error interno al registrar el usuario y compañia " + ex
+                    ErrorMessage = "Error interno al registrar el usuario y empresa."
                 };
             }
         }
@@ -99,9 +101,6 @@ namespace IncapacidadesSoluciones.Services
                 return "No se puede actualizar la empresa.";
 
             var company = await companyRepository.GetCompany(req.Id);
-
-            System.Console.WriteLine(company.LeaderId);
-            System.Console.WriteLine(leaderId);
 
             if (company == null)
                 return "No se pudo encontrar la empresa.";

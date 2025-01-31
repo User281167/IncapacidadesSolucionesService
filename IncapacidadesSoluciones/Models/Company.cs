@@ -6,40 +6,40 @@ using PrimaryKey = Supabase.Postgrest.Attributes.PrimaryKeyAttribute;
 
 namespace IncapacidadesSoluciones.Models
 {
-    [@Table("empresas")]
+    [@Table("companies")]
     public class Company : BaseModel
     {
         [@PrimaryKey("id", false)]
         public Guid Id { get; set; }
 
-        [Column("fecha_union", ignoreOnInsert: true, ignoreOnUpdate: true)]
+        [Column("join_date", ignoreOnInsert: true, ignoreOnUpdate: true)]
         public DateOnly JoinDate { get; set; }
 
         [@Column("nit")]
         public string Nit { get; set; }
 
-        [@Column("nombre")]
+        [@Column("name")]
         public string Name { get; set; }
 
-        [@Column("descripcion")]
-        public string Description { get; set; }
+        [@Column("description")]
+        public string? Description { get; set; }
 
         [@Column("email")]
         public string Email { get; set; }
 
-        [@Column("creacion")]
+        [@Column("created_at")]
         public DateOnly? Founded { get; set; }
 
-        [@Column("direccion")]
-        public string Address { get; set; }
+        [@Column("address")]
+        public string? Address { get; set; }
 
-        [@Column("tipo")]
+        [@Column("type")]
         public string Type { get; set; }
 
         [@Column("sector")]
         public string Sector { get; set; }
 
-        [Column("lider_id")]
+        [Column("leader_id")]
         public Guid LeaderId { get; set; }
     }
 }

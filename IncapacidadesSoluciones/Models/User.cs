@@ -7,35 +7,35 @@ using IncapacidadesSoluciones.Dto.auth;
 
 namespace IncapacidadesSoluciones.Models
 {
-    [@Table("usuarios")]
+    [@Table("users")]
     public class User : BaseModel
     {
         [@PrimaryKey("id", false)]
         public Guid Id { get; set; }
 
-        [@Column("nombres")]
-        public string Name { get; set; }
+        [@Column("name")]
+        public string Name { get; set; } = string.Empty;
 
-        [@Column("apellidos")]
-        public string LastName { get; set; }
+        [@Column("last_name")]
+        public string LastName { get; set; } = string.Empty;
 
         [@Column("cedula")]
-        public string Cedula { get; set; }
+        public string Cedula { get; set; } = string.Empty;
 
         [@Column("email")]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
-        [@Column("telefono")]
-        public string Phone { get; set; }
+        [@Column("phone")]
+        public string? Phone { get; set; }
 
-        [@Column("nit_empresa")]
-        public string CompanyNIT { get; set; }
+        [@Column("company_nit")]
+        public string CompanyNIT { get; set; } = string.Empty;
 
-        [@Column("fecha_union")]
+        [@Column("join_date")]
         public DateOnly JoinDate { get; set; }
 
-        [@Column("rol")]
-        public string Role { get; set; }
+        [@Column("role")]
+        public string Role { get; set; } = string.Empty;
 
         [@Column("photo")]
         public string? Photo { get; set; }
