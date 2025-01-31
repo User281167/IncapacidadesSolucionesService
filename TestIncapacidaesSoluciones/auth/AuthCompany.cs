@@ -145,7 +145,7 @@ namespace TestIncapacidaesSoluciones
 
             // Assert
             var bad = Assert.IsType<BadRequestObjectResult>(res);
-            Assert.Equal("Error al registrar el usuario y compañia", bad.Value);
+            Assert.Equal("Error al registrar el usuario y empresa.", bad.Value);
         }
 
         [Fact]
@@ -164,7 +164,7 @@ namespace TestIncapacidaesSoluciones
 
             // Assert
             var bad = Assert.IsType<BadRequestObjectResult>(res);
-            Assert.Equal("Error no se pudo crear el usuario lider", bad.Value);
+            Assert.Equal("Error no se pudo crear el usuario líder", bad.Value);
         }
 
         [Fact]
@@ -195,11 +195,11 @@ namespace TestIncapacidaesSoluciones
             var res = await authController.RegisterCompany(req);
 
             // Assert
-            var bad = Assert.IsType<OkObjectResult>(res);
-            var authRes = bad.Value as AuthRes;
+            var ok = Assert.IsType<OkObjectResult>(res);
+            var authRes = ok.Value as AuthRes;
 
             Assert.NotNull(authRes);
-            Assert.Equal("Error al registrar la compañia", authRes.ErrorMessage);
+            Assert.Equal("Error al registrar la empresa", authRes.ErrorMessage);
             Assert.Equal(authRes.User.Id, user.Id);
             Assert.Equal(authRes.User.Name, user.Name);
             Assert.NotNull(authRes.Token);

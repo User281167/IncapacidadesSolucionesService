@@ -9,7 +9,7 @@ namespace IncapacidadesSoluciones.Models
     [@Table("collaborators")]
     public class Collaborator : BaseModel
     {
-        [PrimaryKey("id", false)]
+        [PrimaryKey("id", shouldInsert: true)]
         public Guid Id { get; set; }
 
         [@Column("position")]

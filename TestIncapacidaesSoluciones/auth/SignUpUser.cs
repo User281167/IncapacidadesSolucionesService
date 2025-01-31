@@ -105,6 +105,7 @@ namespace TestIncapacidadesSoluciones.auth
             userRepository.Setup(repo => repo.UserExists(userReq.Email, userReq.Cedula)).ReturnsAsync(false);
             userRepository.Setup(repo => repo.SignUp(userReq.Email, userReq.Password)).ReturnsAsync(user);
             userRepository.Setup(repo => repo.UpdateByEmail(It.IsAny<User>())).ReturnsAsync(user);
+            userRepository.Setup(repo => repo.CreateCollaborator(It.IsAny<Guid>())).ReturnsAsync(new Collaborator());
 
             var res = await authController.RegisterUser(userReq);
             var ok = Assert.IsType<OkObjectResult>(res);

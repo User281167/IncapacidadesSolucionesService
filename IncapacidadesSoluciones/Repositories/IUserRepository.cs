@@ -13,6 +13,7 @@ namespace IncapacidadesSoluciones.Repositories
         Task<User> Update(User user);
         Task<User> UpdateByEmail(User user);
         Task<User> SignIn(string email, string password);
+        Task<Collaborator> CreateCollaborator(Guid userId);
         Task<Collaborator> GetCollaboratorById(Guid id);
         Task<Collaborator> UpdateCollaborator(Collaborator collaborator);
         Task Delete(Guid id);

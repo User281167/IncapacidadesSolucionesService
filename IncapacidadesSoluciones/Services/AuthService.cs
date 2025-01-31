@@ -124,7 +124,7 @@ namespace IncapacidadesSoluciones.Services
 
         public async Task<AuthRes> RegisterUser(AuthUserReq req, USER_ROLE role)
         {
-            if (req.AccessCode == null || req.AccessCode == "")
+            if (string.IsNullOrEmpty(req.AccessCode))
                 return new AuthRes { ErrorMessage = "Código de acceso requerido" };
 
             var code = await accessCodeRepository.GetByCode(req.AccessCode);
@@ -146,9 +146,17 @@ namespace IncapacidadesSoluciones.Services
             user.Phone = req.Phone;
             user.Cedula = req.Cedula;
             user.Role = UserRoleFactory.GetRoleName(role);
-            user.CompanyNIT = code.NIT;
+            user.CompanyNIT = code.CompanyNit;
 
             var res = await userRepository.UpdateByEmail(user);
+
+            if (role == USER_ROLE.COLLABORATOR)
+            {
+                var collaborator = await userRepository.CreateCollaborator(res.Id);
+                
+                if (collaborator == null)
+                    return new AuthRes { ErrorMessage = "Error al registrar el colaborador" };
+            }
 
             if (res == null)
                 return new AuthRes { ErrorMessage = "Error no se pudo crear el usuario" };
@@ -170,7 +178,7 @@ namespace IncapacidadesSoluciones.Services
 
             var code = new AccessCode
             {
-                NIT = company.Nit,
+                CompanyNit = company.Nit,
                 ExpirationDate = req.ExpirationDate,
                 Code = AccessCode.GenerateCode(company.Name)
             };
@@ -189,7 +197,7 @@ namespace IncapacidadesSoluciones.Services
             else if (code == null)
                 return await CreateAccessCode(req);
 
-            code.NIT = company.Nit;
+            code.CompanyNit = company.Nit;
             code.ExpirationDate = req.ExpirationDate;
             code.Code = AccessCode.GenerateCode(company.Name);
 

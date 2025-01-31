@@ -96,6 +96,20 @@ namespace IncapacidadesSoluciones.Repositories
             return await GetUserByEmail(session.User.Email);
         }
 
+        public async Task<Collaborator> CreateCollaborator(Guid userId)
+        {
+            if (userId == Guid.Empty)
+                return null;
+
+            Collaborator collaborator = new() { Id = userId };
+
+            var res = await client
+                .From<Collaborator>()
+                .Insert(collaborator, new QueryOptions { Returning = QueryOptions.ReturnType.Representation });
+
+            return res.Models.First();
+        }
+
         public async Task<Collaborator> GetCollaboratorById(Guid id)
         {
             var res = await client
