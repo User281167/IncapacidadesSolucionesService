@@ -84,6 +84,21 @@ namespace IncapacidadesSoluciones.Services
             }
         }
 
+        public async Task<ApiRes<Company>> GetCompany(string nit)
+        {
+            var company = await companyRepository.GetCompanyByNit(nit);
+
+            if (company == null)
+                return new ApiRes<Company> { Message = "No se pudo encontrar la empresa." };
+
+            return new ApiRes<Company>
+            {
+                Success = true,
+                Message = "Empresa obtenida con éxito.",
+                Data = company
+            };
+        }
+
         public async Task<string> UpdateCompany(Guid leaderId, CompanyReq req)
         {
             if (!CompanyTypeFactory.IsValid(req.Type))
@@ -153,7 +168,7 @@ namespace IncapacidadesSoluciones.Services
             if (role == USER_ROLE.COLLABORATOR)
             {
                 var collaborator = await userRepository.CreateCollaborator(res.Id);
-                
+
                 if (collaborator == null)
                     return new AuthRes { ErrorMessage = "Error al registrar el colaborador" };
             }

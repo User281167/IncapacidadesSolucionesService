@@ -41,6 +41,14 @@ namespace IncapacidadesSoluciones.Controllers
             }
         }
 
+        [HttpGet("get-company"), Authorize]
+        public async Task<IActionResult> GetCompany(string nit)
+        {
+            return await HandleServiceCall(
+                async () => await authService.GetCompany(nit)
+            );
+        }
+
         [HttpPut("update-company"), Authorize(Roles = "LIDER")]
         public async Task<IActionResult> UpdateCompany([FromQuery] Guid leaderId, CompanyReq req)
         {
