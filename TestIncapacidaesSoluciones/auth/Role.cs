@@ -13,8 +13,8 @@ namespace TestIncapacidadesSoluciones.auth
     public class Role
     {
         private Mock<IUserRepository> userRepository;
-        private AuthService authService;
-        private AuthController authController;
+        private UserService userService;
+        private UserController userController;
 
         private AuthRoleReq authRoleReq = new AuthRoleReq
         {
@@ -30,8 +30,8 @@ namespace TestIncapacidadesSoluciones.auth
         public Role()
         {
             userRepository = new Mock<IUserRepository>();
-            authService = new AuthService(userRepository.Object, null, null);
-            authController = new AuthController(authService);
+            userService = new UserService(userRepository.Object, null);
+            userController = new UserController(userService);
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace TestIncapacidadesSoluciones.auth
             var req = authRoleReq;
             req.Role = "bad";
 
-            var res = await authController.CreateRole(req);
+            var res = await userController.CreateRole(req);
             var bad = Assert.IsType<BadRequestObjectResult>(res);
             var apiRes = bad.Value as ApiRes<User>;
             Assert.NotNull(apiRes);
@@ -54,7 +54,7 @@ namespace TestIncapacidadesSoluciones.auth
             var req = authRoleReq;
             req.Role = UserRoleFactory.GetRoleName(USER_ROLE.LEADER);
 
-            var res = await authController.CreateRole(req);
+            var res = await userController.CreateRole(req);
             var bad = Assert.IsType<BadRequestObjectResult>(res);
             var apiRes = bad.Value as ApiRes<User>;
             Assert.NotNull(apiRes);
@@ -68,7 +68,7 @@ namespace TestIncapacidadesSoluciones.auth
             var req = authRoleReq;
             req.Role = UserRoleFactory.GetRoleName(USER_ROLE.COLLABORATOR);
 
-            var res = await authController.CreateRole(req);
+            var res = await userController.CreateRole(req);
             var bad = Assert.IsType<BadRequestObjectResult>(res);
             var apiRes = bad.Value as ApiRes<User>;
             Assert.NotNull(apiRes);
@@ -85,7 +85,7 @@ namespace TestIncapacidadesSoluciones.auth
             userRepository.Setup(repo => repo.UpdateByEmail(It.IsAny<User>())).ReturnsAsync(new User());
             userRepository.Setup(repo => repo.SignUp(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new User());
 
-            var res = await authController.CreateRole(authRoleReq);
+            var res = await userController.CreateRole(authRoleReq);
             var bad = Assert.IsType<BadRequestObjectResult>(res);
             var apiRes = bad.Value as ApiRes<User>;
             Assert.NotNull(apiRes);
@@ -103,7 +103,7 @@ namespace TestIncapacidadesSoluciones.auth
             userRepository.Setup(repo => repo.UpdateByEmail(It.IsAny<User>())).ReturnsAsync(new User());
             userRepository.Setup(repo => repo.SignUp(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new User());
 
-            var res = await authController.CreateRole(authRoleReq);
+            var res = await userController.CreateRole(authRoleReq);
             var ok = Assert.IsType<OkObjectResult>(res);
             var apiRes = ok.Value as ApiRes<User>;
             Assert.NotNull(apiRes);
@@ -138,7 +138,7 @@ namespace TestIncapacidadesSoluciones.auth
                 repo => repo.GetByEmailOrCedula(It.IsAny<string>(), It.IsAny<string>())
             ).ReturnsAsync(check);
 
-            var res = await authController.UpdateRole(authRoleReq);
+            var res = await userController.UpdateRole(authRoleReq);
             var bad = Assert.IsType<BadRequestObjectResult>(res);
             var apiRes = bad.Value as ApiRes<User>;
             Assert.NotNull(apiRes);
@@ -172,7 +172,7 @@ namespace TestIncapacidadesSoluciones.auth
             ).ReturnsAsync(user);
             userRepository.Setup(repo => repo.Update(It.IsAny<User>())).ReturnsAsync(user);
 
-            var res = await authController.UpdateRole(authRoleReq);
+            var res = await userController.UpdateRole(authRoleReq);
             var ok = Assert.IsType<OkObjectResult>(res);
             var apiRes = ok.Value as ApiRes<User>;
             Assert.NotNull(apiRes);
@@ -197,7 +197,7 @@ namespace TestIncapacidadesSoluciones.auth
             // Arrange
             userRepository.Setup(repo => repo.GetById(It.IsAny<Guid>())).ReturnsAsync(user);
 
-            var res = await authController.DeleteRole(req);
+            var res = await userController.DeleteRole(req);
             var bad = Assert.IsType<BadRequestObjectResult>(res);
             var apiRes = bad.Value as ApiRes<bool>;
             Assert.NotNull(apiRes);
@@ -229,8 +229,8 @@ namespace TestIncapacidadesSoluciones.auth
             // Arrange
             userRepository.Setup(repo => repo.GetById(req.LeaderId)).ReturnsAsync(leader);
             userRepository.Setup(repo => repo.GetById(req.UserId)).ReturnsAsync(user);
-            
-            var res = await authController.DeleteRole(req);
+
+            var res = await userController.DeleteRole(req);
             var bad = Assert.IsType<BadRequestObjectResult>(res);
             var apiRes = bad.Value as ApiRes<bool>;
             Assert.NotNull(apiRes);
@@ -265,7 +265,7 @@ namespace TestIncapacidadesSoluciones.auth
             userRepository.Setup(repo => repo.GetById(req.UserId)).ReturnsAsync(user);
             userRepository.Setup(repo => repo.Delete(It.IsAny<Guid>()));
 
-            var res = await authController.DeleteRole(req);
+            var res = await userController.DeleteRole(req);
             var ok = Assert.IsType<OkObjectResult>(res);
             var apiRes = ok.Value as ApiRes<bool>;
             Assert.NotNull(apiRes);

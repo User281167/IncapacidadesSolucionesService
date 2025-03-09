@@ -1,4 +1,6 @@
-﻿using IncapacidadesSoluciones.Dto.UserDto;
+﻿using IncapacidadesSoluciones.Dto;
+using IncapacidadesSoluciones.Dto.auth;
+using IncapacidadesSoluciones.Dto.UserDto;
 using IncapacidadesSoluciones.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -77,6 +79,45 @@ namespace IncapacidadesSoluciones.Controllers
         {
             return await HandleServiceCall(
                 async () => await userService.GetSpecialRoles(leaderId)
+            );
+        }
+
+
+        [HttpPost("create-role"), Authorize(Roles = "LIDER")]
+        public async Task<IActionResult> CreateRole(AuthRoleReq req)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(new ApiRes<List<string>>
+                {
+                    Message = "Error de validación de datos.",
+                    Data = errors
+                });
+            }
+
+            return await HandleServiceCall(
+                async () => await userService.CreateRole(req)
+            );
+        }
+
+        [HttpPut("update-role"), Authorize(Roles = "LIDER")]
+        public async Task<IActionResult> UpdateRole(AuthRoleReq req)
+        {
+            return await HandleServiceCall(
+                async () => await userService.UpdateRole(req)
+            );
+        }
+
+        [HttpDelete("delete-role"), Authorize(Roles = "LIDER")]
+        public async Task<IActionResult> DeleteRole(DeleteAuthReq req)
+        {
+            return await HandleServiceCall(
+                async () => await userService.DeleteRole(req)
             );
         }
 
